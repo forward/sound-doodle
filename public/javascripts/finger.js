@@ -24,7 +24,7 @@ function init(e) {
 		cb_canvas.onmouseup = liftOff;
 		cb_canvas.ontouchstart = pushDown;
 		cb_canvas.ontouchstop = liftOff;
-		// cb_canvas.ontouchmove = updatePos;
+		cb_canvas.ontouchmove = updatePos;
 	}
 }
 
