@@ -9,6 +9,7 @@ var sampleFrequency = 100;
 var DISTANCE_THRESHOLD = 20;
 
 var Colors = {
+    WHITE: "#FFFFFF",
     BLACK: "#000000",
     RED: "#FF0000",
     GREEN: "#00FF00",
@@ -33,6 +34,13 @@ Scene.prototype.reset = function() {
 	this.shapes[i].reset();
 
     this.canvas.width = this.canvas.width;
+    var oldFillStyle = this.context.fillStyle;
+    if(this.mode() === "edit") {
+	this.context.fillStyle  = Colors.WHITE;
+	this.context.fillRect(0,0,this.canvas.width, this.canvas.height);
+    }
+    this.context.fillStyle = oldFillStyle;
+    
     this.context.lineWidth = 2;
     this.context.strokeStyle = "rgb(0, 0, 0)";
 };
@@ -89,10 +97,12 @@ Scene.prototype.computeCloserSegment = function(point) {
     }
 };
 
-var Segment = function(p1,p2) {
+var Segment = function(p1,p2, startTime, timeSpan) {
     this.p1 = p1;
     this.p2 = p2;
     this.projected = null;
+    this.startTime = startTime;
+    this.span = timeSpan;
 };
 Segment.prototype.constructor = Segment;
 
@@ -154,9 +164,6 @@ Segment.prototype.projection = function(point) {
     return {x:xf, y:yf};
 }
 
-var s = new Segment({x:2,y:-3},{x:-5,y:1});
-s.projection({x:-8,y:12});
-
 Segment.prototype.distance = function(point) {
     var x = point.x, y = point.y, x1 = this.p1.x;
     var y1 = this.p1.y, x2 = this.p2.x, y2 = this.p2.y;
@@ -193,15 +200,21 @@ Segment.prototype.distance = function(point) {
 var Shape = function(context) {
     this.segments = [];
     this.context = context;
+    this.initialTime = null;
+    this.clock = null;
 };
 
 Shape.prototype.constructor = Shape;
 
 Shape.prototype.addPoint = function(point, draw) {
-    if(this.lastPoint === undefined)
+    if(this.lastPoint === undefined) {
+	this.initialTime = (new Date()).getTime();
+	this.clock = this.initialTime;
 	this.lastPoint = point;
-    else {
-	var segment = new Segment(this.lastPoint, point);
+    } else {
+	var nextClock = (new Date()).getTime();
+	var segment = new Segment(this.lastPoint, point, this.clock - this.initialTime, (nextClock-this.clock));
+	this.clock = nextClock;
 	this.segments.push(segment);
 	this.lastPoint = point;
 	if(draw === true)
@@ -228,6 +241,7 @@ Shape.prototype.computeCloserSegment = function(point) {
 
 Shape.prototype.highlightSegment = function(segment, color) {
     segment.color = color;
+    console.log("DISPLAYED SEGMENT WITH AT "+segment.startTime+" [ "+segment.span+" ] ");
 };
 
 Shape.prototype.reset = function() {
