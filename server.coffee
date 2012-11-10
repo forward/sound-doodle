@@ -1,7 +1,8 @@
 express = require 'express'
 http = require 'http'
 path = require 'path'
-
+sys = require 'sys'
+fs = require 'fs'
 
 app = express()
 
@@ -64,6 +65,15 @@ app.get '/', (req,res) ->
 
 app.get '/sound', (req,res) ->
   res.render 'sound', title: "Sound"
+
+app.post '/sound/capture', (req,res) ->
+  stream = fs.createWriteStream './tmp.wav'
+  # stream.once 'open', (fd) ->
+  req.on 'data', (chunk) ->
+    stream.write chunk
+    
+  req.on 'end', ->
+    stream.end
 
 app.get '/draw', (req, res) ->
   res.render 'draw', title: "Draw"

@@ -1,0 +1,9 @@
+extends layout
+block scripts
+  script(src='https://ajax.googleapis.com/ajax/libs/swfobject/2.2/swfobject.js')
+  script(src='javascripts/recorder.js')
+block content
+  body(onload="Wami.setup({ id : 'wami' });")
+    div(id="wami")
+    a(onclick="Wami.startRecording('http://localhost:9292/sound/capture');") Start
+    a(onclick="Wami.stopRecording();") Stop
