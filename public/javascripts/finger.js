@@ -36,13 +36,18 @@ function init(e) {
 }
 
 function recordPath() {
-  divLog("******RECORDING PATH "+path.length);
-  path.push(cb_lastPoints[0]);
-  if (path.length > 1) {
-    var last = path[path.length-1];
-    var secondLast = path[path.length-2];
-    divLog("About to draw line from ("+secondLast.x+","+secondLast.y+") TO ("+last.x+","+last.y+")");
-    drawLine(secondLast.x,secondLast.y,last.x,last.y);
+  try {
+    divLog("******RECORDING PATH "+path.length);
+    path.push(cb_lastPoints[0]);
+    if (path.length > 1) {
+      var last = path[path.length-1];
+      var secondLast = path[path.length-2];
+      divLog("About to draw line from ("+secondLast.x+","+secondLast.y+") TO ("+last.x+","+last.y+")");
+      drawLine(secondLast.x,secondLast.y,last.x,last.y);
+    }
+    
+  } catch (x) {
+    divLog("EXCEPTION"+x);
   }
 }
 
