@@ -25,7 +25,8 @@ var Scene = function(id, canvas) {
   this.shapes = [];
   this.canvas = canvas;
   this.context = canvas.getContext('2d');
-  this.currentShape = new Shape(this.context);
+  console.log(this.id, id);
+  this.currentShape = new Shape(this.context, this.shapes.length, this.id);
   this.trackedShape = null;
   this.reset();    
 };
@@ -49,7 +50,7 @@ Scene.prototype.reset = function() {
 
 Scene.prototype.nextShape = function() {
   this.shapes.push(this.currentShape);
-  this.currentShape = new Shape(this.context);
+  this.currentShape = new Shape(this.context, this.shapes.length, this.id);
 };
 
 Scene.prototype.render = function() {
@@ -235,7 +236,9 @@ Segment.prototype.distance = function(point) {
 
 };
 
-var Shape = function(context) {
+var Shape = function(context, id, scene_id) {
+  this.sceneId = scene_id;
+  this.id = id;
   this.segments = [];
   this.context = context;
   this.initialTime = null;
@@ -316,6 +319,13 @@ Shape.prototype.reset = function() {
     this.segments[i].reset();
 };
 
+Shape.prototype.uploadName = function() {
+  return '/sound/capture/' + this.sceneId + '-' + this.id;
+}
+
+Shape.prototype.filename = function() {
+  return '/' + this.sceneId + '-' + this.id;
+}
 
 var divLog = function(text) {
   logText = logText + "\n"+text;
@@ -337,7 +347,8 @@ function computeEllapsedTime() {
 }
 
 function pushDown(e) {
-  //Wami.startRecording('/sound/capture/testfile');
+  console.log("Writing file : " + window.scene.currentShape.uploadName());
+  Wami.startRecording(window.scene.currentShape.uploadName());
   if (e.touches) {
     // Touch event
     for (var i = 1; i <= e.touches.length; i++) {
@@ -356,7 +367,7 @@ function pushDown(e) {
 
 // Called whenever cursor position changes after drawing has started
 function liftOff(e) {
-  //Wami.stopRecording();
+  Wami.stopRecording();
   scene.nextShape();
   e.preventDefault();
   canvas.onmousemove = null;
@@ -381,7 +392,6 @@ function updatePos(e) {
 
 function startTracking(e) {
   console.log("STARTING TRACKING");
-  //Wami.startRecording('/sound/capture/testfile');
   if (e.touches) {
     // Touch event
     for (var i = 1; i <= e.touches.length; i++) {
@@ -438,5 +448,5 @@ jQuery(document).ready(function() {
                          // Interface is live now
                          ko.applyBindings(scene);
 
-                         //Wami.setup({ id : 'wami' });
+                         Wami.setup({ id : 'wami' });
                        });
