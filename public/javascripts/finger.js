@@ -168,6 +168,7 @@ Segment.prototype.projectedTime = function() {
 
     return this.startTime + coefficient * this.span;
   }
+  return null;
 };
 
 Segment.prototype.projection = function(point) {
@@ -199,7 +200,7 @@ Segment.prototype.projection = function(point) {
   //console.log("y: "+yf);
   //console.log("x: "+xf);
   return {x:xf, y:yf};
-}
+};
 
 Segment.prototype.distance = function(point) {
   var x = point.x, y = point.y, x1 = this.p1.x;
@@ -284,11 +285,11 @@ Shape.prototype.markProjection = function(segment, point) {
   // We only allow to play a sound if two consecutive segments are tracked
   // by the user.
   // The first segment tracked can also be played up to the projection.
-  if(this.markedSegmentCounter === null || this.markedSegmentCounter === (segment.counter-1))
+  if(this.markedSegmentCounter === null || this.markedSegmentCounter === (segment.counter-1) || this.markedSegmentCounter === (segment.counter))
     this.canPlaySound = true;
   this.markedSegmentCounter = segment.counter;
   
-}
+};
 
 Shape.prototype.computeCloserSegment = function(point) {
   var segment, distance, computed;
