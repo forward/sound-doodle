@@ -36,6 +36,7 @@ function init(e) {
 }
 
 function recordPath() {
+  divLog("******RECORDING PATH "+path.length);
   path.push(cb_lastPoints[0]);
   if (path.length > 1) {
     var last = path[path.length-1];
@@ -65,6 +66,7 @@ function pushDown(e) {
 
 // Called whenever cursor position changes after drawing has started
 function liftOff(e) {
+  divLog("****LIFTING OFF!");
 	e.preventDefault();
 	cb_canvas.onmousemove = null;
   clearInterval(timer);
