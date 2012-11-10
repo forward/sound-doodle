@@ -36,12 +36,18 @@ function init(e) {
 }
 
 function recordPath() {
-  path.push(cb_lastPoints[0]);
-  if (path.length > 1) {
-    var last = path[path.length-1];
-    var secondLast = path[path.length-2];
-    divLog("About to draw line from ("+secondLast.x+","+secondLast.y+") TO ("+last.x+","+last.y+")");
-    drawLine(secondLast.x,secondLast.y,last.x,last.y);
+  try {
+    divLog("******RECORDING PATH "+path.length);
+    path.push(cb_lastPoints[cb_lastPoints.length-1]);
+    if (path.length > 1) {
+      var last = path[path.length-1];
+      var secondLast = path[path.length-2];
+      divLog("About to draw line from ("+secondLast.x+","+secondLast.y+") TO ("+last.x+","+last.y+")");
+      drawLine(secondLast.x,secondLast.y,last.x,last.y);
+    }
+    
+  } catch (x) {
+    divLog("EXCEPTION"+x);
   }
 }
 
@@ -65,6 +71,7 @@ function pushDown(e) {
 
 // Called whenever cursor position changes after drawing has started
 function liftOff(e) {
+  divLog("****LIFTING OFF!");
 	e.preventDefault();
 	cb_canvas.onmousemove = null;
   clearInterval(timer);
@@ -74,7 +81,7 @@ function updatePos(e) {
 	if (e.touches) {
 		// Touch Enabled
 		for (var i = 1; i <= e.touches.length; i++) {
-			var p = getCoords(e.touches[i - 1]); // Get info for finger i
+			var p = getCoords(e.touches[e.touches.length - 1]); // Get info for finger i
 			cb_lastPoints[i] = {x: p.x, y: p.y};
 		}
 	}
