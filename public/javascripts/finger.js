@@ -1,5 +1,4 @@
 var lastPoint = null;
-var cb_easing = 0.4;
 var logText = "";
 
 var trails = [];
@@ -12,7 +11,8 @@ var DISTANCE_THRESHOLD = 20;
 var Colors = {
     BLACK: "#000000",
     RED: "#FF0000",
-    GREEN: "#00FF00"
+    GREEN: "#00FF00",
+    MARKER: "#0000FF"
 };
 
 var Scene = function(canvas) {
@@ -80,15 +80,19 @@ Scene.prototype.computeCloserSegment = function(point) {
 	}
     }
 
-    if(distance <= DISTANCE_THRESHOLD)
-	shape.highlightSegment(segment, Colors.RED);
-    else
-	shape.highlightSegment(segment, Colors.GREEN);
+    if(segment !== null) {
+	segment.markProjection(point);
+	if(distance <= DISTANCE_THRESHOLD)
+	    shape.highlightSegment(segment, Colors.RED);
+	else
+	    shape.highlightSegment(segment, Colors.GREEN);
+    }
 };
 
 var Segment = function(p1,p2) {
     this.p1 = p1;
     this.p2 = p2;
+    this.projected = null;
 };
 Segment.prototype.constructor = Segment;
 
@@ -99,7 +103,59 @@ Segment.prototype.render = function(context) {
     context.lineTo(this.p2.x, this.p2.y);
     context.stroke();
     context.closePath();
+    if(this.projected != null) {
+	context.beginPath();
+	context.arc(this.projected.x, this.projected.y, 2, 0, 2 * Math.PI, false);
+	context.strokeStyle = Colors.MARKER;
+	context.fillStyle = Colors.MARKER;
+	context.fill();
+	context.stroke();
+	context.closePath();
+    }
 };
+
+Segment.prototype.reset = function() {
+    this.color = Colors.BLACK;
+    this.projected = null;
+};
+
+Segment.prototype.markProjection = function(point) {
+    this.projected = this.projection(point);
+};
+
+Segment.prototype.projection = function(point) {
+    var x = point.x, y = point.y, x1 = this.p1.x;
+    var y1 = this.p1.y, x2 = this.p2.x, y2 = this.p2.y;
+
+    var x1y1 = [x2-x1, y2-y1];
+
+    //console.log("DIRECTOR");
+    //console.log(x1y1);
+
+    var rect = [x1y1[1], -x1y1[0], ((x1y1[0]*y1)-(x1y1[1]*x1))];
+    //console.log("RECT");
+    //console.log(rect)
+
+    var perp = [x1y1[1], -x1y1[0]];
+    //console.log("PERP");
+    //console.log(perp);
+
+    var rectPerp = [perp[1], -perp[0], ((perp[0]*y)-(perp[1]*x))];
+    //console.log("PERP RECT");
+    //console.log(rectPerp);
+
+    var rpyc = [-rectPerp[1]/rectPerp[0],  -rectPerp[2]/rectPerp[0]];
+    
+    var yf =  -(rect[2] + rect[0]*rpyc[1]) / (rect[0]*rpyc[0] + rect[1]);
+
+    var xf = ((-rectPerp[1]*yf) - rectPerp[2])/ rectPerp[0];
+    //console.log("y: "+yf);
+    //console.log("x: "+xf);
+    return {x:xf, y:yf};
+}
+
+var s = new Segment({x:2,y:-3},{x:-5,y:1});
+s.projection({x:-8,y:12});
 
 Segment.prototype.distance = function(point) {
     var x = point.x, y = point.y, x1 = this.p1.x;
@@ -121,14 +177,13 @@ Segment.prototype.distance = function(point) {
     var dy1 = y - y1;
     var dy2 = y - y2;
 
-    if (dx1*dx2 < 0) { // x is between x1 and x2
-	if (dy1*dy2 < 0) { // (x,y) is inside the rectangle
+    if (dx1*dx2 < 0) { 
+	if (dy1*dy2 < 0) {
 	    return Math.min(Math.min(Math.abs(dx1), Math.abs(dx2)),Math.min(Math.abs(dy1),Math.abs(dy2)));
 	}
 	return Math.min(Math.abs(dy1),Math.abs(dy2));
     }
-    if (dy1*dy2 < 0) { // y is between y1 and y2
-	// we don't have to test for being inside the rectangle, it's already tested.
+    if (dy1*dy2 < 0) {
 	return Math.min(Math.abs(dx1),Math.abs(dx2));
     }
     return Math.min(Math.min(dist(x,y,x1,y1),dist(x,y,x2,y2)),Math.min(dist(x,y,x1,y2),dist(x,y,x2,y1)));
@@ -177,7 +232,7 @@ Shape.prototype.highlightSegment = function(segment, color) {
 
 Shape.prototype.reset = function() {
     for(var i=0; i<this.segments.length; i++)
-	this.segments[i].color = Colors.BLACK;
+	this.segments[i].reset();
 };
 
 
@@ -200,6 +255,12 @@ $(document).ready(function() {
 
 function recordPath() {
     scene.currentShape.addPoint(lastPoint, true);
+}
+
+function computeEllapsedTime() {
+    scene.reset();
+    scene.computeCloserSegment(lastPoint);
+    scene.render();
 }
 
 function pushDown(e) {
@@ -260,19 +321,13 @@ function startTracking(e) {
 	lastPoint = getCoords(e);
 	canvas.onmousemove = updateTracking;
     }
-    timer = setInterval(function(){
-	scene.reset();
-	scene.computeCloserSegment(lastPoint);
-	scene.render();
-    },sampleFrequency);
+    timer = setInterval(computeEllapsedTime,sampleFrequency);
     return false;
 }
 
 
 function updateTracking(e) {
     updatePos(e);
-    console.log("UPDATING TRACKING FOR "+lastPoint.x+","+lastPoint.y);
-    scene.computeCloserSegment(lastPoint);
 }
 
 function stopTracking(e) {
