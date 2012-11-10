@@ -1,6 +1,7 @@
 extends layout
-block scripts
+block append scripts
   script(src='javascripts/finger.js')
-block content
+block append content
   body
     canvas(width="600",height="600",id="canvas")
+    div(id='log')
