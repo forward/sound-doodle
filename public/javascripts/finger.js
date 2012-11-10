@@ -380,7 +380,6 @@ function updatePos(e) {
 
 function startTracking(e) {
   console.log("STARTING TRACKING");
-  //Wami.startRecording('/sound/capture/testfile');
   if (e.touches) {
     // Touch event
     for (var i = 1; i <= e.touches.length; i++) {
