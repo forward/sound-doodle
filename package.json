@@ -1,10 +1,10 @@
 {
   "name": "nko3-forward",
-  "version": "0.0.0",
+  "version": "0.0.0-2",
   "description": "Forward",
   "main": "server.js",
   "scripts": {
-    "start": "./node_modules/.bin/coffee server.coffee"
+    "start": "coffee server.coffee"
   },
   "repository": {
     "type": "git",
