@@ -38,7 +38,7 @@ function init(e) {
 function recordPath() {
   try {
     divLog("******RECORDING PATH "+path.length);
-    path.push(cb_lastPoints[0]);
+    path.push(cb_lastPoints[cb_lastPoints.length-1]);
     if (path.length > 1) {
       var last = path[path.length-1];
       var secondLast = path[path.length-2];
@@ -81,7 +81,7 @@ function updatePos(e) {
 	if (e.touches) {
 		// Touch Enabled
 		for (var i = 1; i <= e.touches.length; i++) {
-			var p = getCoords(e.touches[i - 1]); // Get info for finger i
+			var p = getCoords(e.touches[e.touches.length - 1]); // Get info for finger i
 			cb_lastPoints[i] = {x: p.x, y: p.y};
 		}
 	}
