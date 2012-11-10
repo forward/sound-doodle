@@ -26,6 +26,7 @@ var Scene = function(id, canvas) {
     this.canvas = canvas;
     this.context = canvas.getContext('2d');
     this.currentShape = new Shape(this.context);
+    this.trackedShape = null;
     this.reset();    
 };
 Scene.prototype.constructor = Scene;
@@ -79,7 +80,7 @@ Scene.prototype.computeCloserSegment = function(point) {
     var segment = null;
     var shape = null;
     var computed = null;
-    var color = "#000000";
+    var color = Colors.BLACK;
     for(var i=0; i<this.shapes.length; i++) {
 	computed = this.shapes[i].computeCloserSegment(point);
 	if(distance === null || computed.distance < distance) {
@@ -90,15 +91,27 @@ Scene.prototype.computeCloserSegment = function(point) {
     }
 
     if(segment !== null) {
-	segment.markProjection(point);
-	if(distance <= DISTANCE_THRESHOLD)
+	if(shape !== this.trackedShape) {
+	    if(this.trackedShape !== null){
+		this.trackedShape.oldProjectedTime = null;
+		this.trackedShape.reset();
+	    }
+	    shape.oldProjectedTime = null;
+	    shape.reset();
+	}
+	this.trackedShape = shape;
+	this.trackedShape.markProjection(segment, point);
+	if(distance <= DISTANCE_THRESHOLD) {
 	    shape.highlightSegment(segment, Colors.RED);
-	else
+	    if(shape.canPlaySound)
+		shape.playSound();
+	} else 
 	    shape.highlightSegment(segment, Colors.GREEN);
     }
 };
 
-var Segment = function(p1,p2, startTime, timeSpan) {
+var Segment = function(p1,p2, startTime, timeSpan, counter) {
+    this.counter = counter
     this.p1 = p1;
     this.p2 = p2;
     this.projected = null;
@@ -107,7 +120,7 @@ var Segment = function(p1,p2, startTime, timeSpan) {
 };
 Segment.prototype.constructor = Segment;
 
-Segment.prototype.render = function(context) {
+Segment.prototype.render = function(context) {    
     context.beginPath();
     context.strokeStyle = this.color;
     context.moveTo(this.p1.x, this.p1.y);
@@ -132,6 +145,29 @@ Segment.prototype.reset = function() {
 
 Segment.prototype.markProjection = function(point) {
     this.projected = this.projection(point);
+};
+
+Segment.prototype.projectedTime = function() {
+    if(this.projected === null) {
+	console.log("(!!) Trying to project a non tracked segment");
+    } else {
+	var dist = function(x1,y1,x2,y2) {
+	    var xs=0,ys=0;
+	    xs = x2 - x1;
+	    xs = xs * xs;
+
+	    ys = y2 - y1;
+	    ys = ys * ys;
+	    
+	    return Math.sqrt(xs + ys);
+	};
+
+	var modulus = dist(this.p1.x, this.p1.y, this.p2.x, this.p2.y);
+	var projectedDistance = dist(this.p1.x, this.p1.y, this.projected.x, this.projected.y);
+	var coefficient = parseFloat(projectedDistance) / parseFloat(modulus);
+
+	return this.startTime + coefficient * this.span;
+    }
 };
 
 Segment.prototype.projection = function(point) {
@@ -203,9 +239,24 @@ var Shape = function(context) {
     this.context = context;
     this.initialTime = null;
     this.clock = null;
+    this.markedSegmentCounter = null;
+    this.canPlaySound = false;
+    this.oldProjectedTime = null;
 };
 
 Shape.prototype.constructor = Shape;
+
+Shape.prototype.playSound = function() {
+    if(this.canPlaySound) {
+	debugger;
+	var projectedTime = this.segments[this.markedSegmentCounter].projectedTime();
+	var reproductionTime = (this.oldProjectedTime === null ? (projectedTime - this.segments[this.markedSegmentCounter].startTime) : (projectedTime - this.oldProjectedTime));
+	console.log("===> SHOULD REPRODUCE "+reproductionTime+" FROM "+this.oldProjectedTime);
+	this.oldProjectedTime = projectedTime;
+    } else {
+	console.log("(!!) Trying to play invalid sound");
+    }
+};
 
 Shape.prototype.addPoint = function(point, draw) {
     if(this.lastPoint === undefined) {
@@ -214,7 +265,7 @@ Shape.prototype.addPoint = function(point, draw) {
 	this.lastPoint = point;
     } else {
 	var nextClock = (new Date()).getTime();
-	var segment = new Segment(this.lastPoint, point, this.clock - this.initialTime, (nextClock-this.clock));
+	var segment = new Segment(this.lastPoint, point, this.clock - this.initialTime, (nextClock-this.clock), this.segments.length);
 	this.clock = nextClock;
 	this.segments.push(segment);
 	this.lastPoint = point;
@@ -227,6 +278,17 @@ Shape.prototype.render = function(context) {
     for(var i=0; i<this.segments.length; i++)
 	this.segments[i].render(context);
 };
+
+Shape.prototype.markProjection = function(segment, point) {
+    segment.markProjection(point);
+    // We only allow to play a sound if two consecutive segments are tracked
+    // by the user.
+    // The first segment tracked can also be played up to the projection.
+    if(this.markedSegmentCounter === null || this.markedSegmentCounter === (segment.counter-1))
+	this.canPlaySound = true;
+    this.markedSegmentCounter = segment.counter;
+	
+}
 
 Shape.prototype.computeCloserSegment = function(point) {
     var segment, distance, computed;
@@ -242,10 +304,13 @@ Shape.prototype.computeCloserSegment = function(point) {
 
 Shape.prototype.highlightSegment = function(segment, color) {
     segment.color = color;
-    console.log("DISPLAYED SEGMENT WITH AT "+segment.startTime+" [ "+segment.span+" ] ");
+    //console.log("DISPLAYED SEGMENT WITH AT "+segment.startTime+" [ "+segment.span+" ] ");
 };
 
 Shape.prototype.reset = function() {
+    this.markedSegmentCounter = null;
+    this.canPlaySound = false;
+    //this.oldProjectedTime = null;
     for(var i=0; i<this.segments.length; i++)
 	this.segments[i].reset();
 };
