@@ -2,15 +2,22 @@ var cb_canvas = null;
 var cb_ctx = null;
 var cb_lastPoints = null;
 var cb_easing = 0.4;
+var logText = "";
 
 var path = [];
 
 var timer = null;
 var sampleFrequency = 100;
 
+var divLog = function(text) {
+  logText = logText + "\n"+text;
+  jQuery("#log").text(logText);
+};
+
 // Setup event handlers
 window.onload = init;
 function init(e) {
+  divLog("Starting...");
 	cb_canvas = document.getElementById("canvas");
 	cb_lastPoints = Array();
 
@@ -33,6 +40,7 @@ function recordPath() {
   if (path.length > 1) {
     var last = path[path.length-1];
     var secondLast = path[path.length-2];
+    divLog("About to draw line from ("+secondLast.x+","+secondLast.y+") TO ("+last.x+","+last.y+")");
     drawLine(secondLast.x,secondLast.y,last.x,last.y);
   }
 }
