@@ -5,6 +5,6 @@ block scripts
 block content
   body(onload="Wami.setup({ id : 'wami' });")
     div(id="wami")
-    a(onclick="Wami.startRecording('http://localhost:9292/sound/capture');") Start
+    a(onclick="Wami.startRecording('/sound/capture');") Start
     a(onclick="Wami.stopRecording();") Stop
-    audio(preload="auto", src="http://localhost:9292/tmp.wav", controls="true")
+    audio(preload="auto", src="/tmp.wav", controls="true")
