@@ -4,13 +4,18 @@
   "description": "Forward",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "./node_modules/.bin/coffee server.coffee"
   },
   "repository": {
     "type": "git",
     "url": "git@github.com:nko3/forward.git"
   },
   "dependencies": {
+    "express": "3.0.0rc3",
+    "jade": "*",
+    "coffee-script": "*",
+    "socket.io": "*",
+    "webworker": "*"
   },
   "engines": {
     "node": "0.8.x"
