@@ -7,6 +7,13 @@ var trails = [];
 var timer = null;
 var sampleFrequency = 100;
 
+var DISTANCE_THRESHOLD = 20;
+
+var Colors = {
+    BLACK: "#000000",
+    RED: "#FF0000",
+    GREEN: "#00FF00"
+};
 
 var Scene = function(canvas) {
     // interface properties
@@ -73,7 +80,10 @@ Scene.prototype.computeCloserSegment = function(point) {
 	}
     }
 
-    shape.highlightSegment(segment);
+    if(distance <= DISTANCE_THRESHOLD)
+	shape.highlightSegment(segment, Colors.RED);
+    else
+	shape.highlightSegment(segment, Colors.GREEN);
 };
 
 var Segment = function(p1,p2) {
@@ -161,13 +171,13 @@ Shape.prototype.computeCloserSegment = function(point) {
     return {distance: distance, segment: segment};
 };
 
-Shape.prototype.highlightSegment = function(segment) {
-    segment.color = "#FF0000";
+Shape.prototype.highlightSegment = function(segment, color) {
+    segment.color = color;
 };
 
 Shape.prototype.reset = function() {
     for(var i=0; i<this.segments.length; i++)
-	this.segments[i].color = "#000000";
+	this.segments[i].color = Colors.BLACK;
 };
 
 
@@ -269,6 +279,8 @@ function stopTracking(e) {
     console.log("\n\n\nSTOP TRACKING");
     e.preventDefault();
     canvas.onmousemove = null;
+    scene.reset();
+    scene.render();
     clearInterval(timer);
 }
 
