@@ -1,7 +1,10 @@
 extends layout
 block append scripts
   script(src='javascripts/finger.js')
+  script(src='https://ajax.googleapis.com/ajax/libs/swfobject/2.2/swfobject.js')
+  script(src='javascripts/recorder.js')
 block append content
   body
     canvas(width="600",height="600",id="canvas")
     div(id='log')
+    div(id='wami')

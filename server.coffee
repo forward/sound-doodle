@@ -66,12 +66,12 @@ app.get '/', (req,res) ->
 app.get '/sound', (req,res) ->
   res.render 'sound', title: "Sound"
 
-app.post '/sound/capture', (req,res) ->
-  stream = fs.createWriteStream './public/tmp.wav'
-  # stream.once 'open', (fd) ->
+app.post '/sound/capture/:filename', (req,res) ->
+  stream = fs.createWriteStream "./public/#{req.params.filename}.wav"
+
   req.on 'data', (chunk) ->
     stream.write chunk
-    
+
   req.on 'end', ->
     stream.end
 

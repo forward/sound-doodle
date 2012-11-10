@@ -15,8 +15,7 @@ var divLog = function(text) {
 };
 
 // Setup event handlers
-window.onload = init;
-function init(e) {
+$(document).ready(function() {
   divLog("Starting...");
 	cb_canvas = document.getElementById("canvas");
 	cb_lastPoints = Array();
@@ -33,7 +32,11 @@ function init(e) {
 		cb_canvas.ontouchstop = liftOff;
 		cb_canvas.ontouchmove = updatePos;
 	}
-}
+  Wami.setup({ id : 'wami' });
+
+
+ 
+});
 
 function recordPath() {
   try {
@@ -52,6 +55,7 @@ function recordPath() {
 }
 
 function pushDown(e) {
+  Wami.startRecording('http://localhost:9292/sound/capture/testfile');
 	if (e.touches) {
 		// Touch event
 		for (var i = 1; i <= e.touches.length; i++) {
@@ -71,6 +75,7 @@ function pushDown(e) {
 
 // Called whenever cursor position changes after drawing has started
 function liftOff(e) {
+  Wami.stopRecording();
   divLog("****LIFTING OFF!");
 	e.preventDefault();
 	cb_canvas.onmousemove = null;
