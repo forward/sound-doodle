@@ -1,6 +1,4 @@
-var cb_canvas = null;
-var cb_ctx = null;
-var cb_lastPoints = null;
+var lastPoint = null;
 var cb_easing = 0.4;
 var logText = "";
 
@@ -10,124 +8,166 @@ var timer = null;
 var sampleFrequency = 100;
 
 
-var Shape = function() {
-  this.points = [];
+var Scene = function(canvas) {
+    // interface properties
+    this.mode = ko.observable('edit');
+
+    // state
+    this.shapes = [];
+    this.canvas = canvas;
+    this.context = canvas.getContext('2d');
+    this.currentShape = new Shape(this.context);
+    this.reset();    
+};
+Scene.prototype.constructor = Scene;
+
+Scene.prototype.reset = function() {
+    this.canvas.width = this.canvas.width;
+    this.context.lineWidth = 2;
+    this.context.strokeStyle = "rgb(0, 0, 0)";
+};
+
+Scene.prototype.nextShape = function() {
+    this.shapes.push(this.currentShape);
+    this.currentShape = new Shape(this.context);
+};
+
+Scene.prototype.render = function() {
+    for(var i=0; i<this.shapes.length; i++)
+	this.shapes[i].render(this.context)
+};
+
+Scene.prototype.setMode = function(mode) {
+    this.mode(mode);
+    if(mode === 'edit') {
+	canvas.onmousedown = pushDown;
+	canvas.onmouseup = liftOff;
+	canvas.ontouchstart = pushDown;
+	canvas.ontouchstop = liftOff;
+	canvas.ontouchmove = updatePos;
+    } else {
+	canvas.onmousedown = null;
+	canvas.onmouseup = null;
+	canvas.ontouchstart = null;
+	canvas.ontouchstop = null;
+	canvas.ontouchmove = null;
+    }
+};
+
+var Segment = function(p1,p2) {
+    this.p1 = p1;
+    this.p2 = p2;
+};
+Segment.prototype.constructor = Segment;
+
+Segment.prototype.render = function(context) {
+    context.beginPath();
+    context.moveTo(this.p1.x, this.p1.y);
+    context.lineTo(this.p2.x, this.p2.y);
+    context.stroke();
+    context.closePath();
+};
+
+
+var Shape = function(context) {
+    this.segments = [];
+    this.context = context;
 };
 
 Shape.prototype.constructor = Shape;
 
-Shape.prototype.addPoint = function(p) {
-  this.points.push(p);
+Shape.prototype.addPoint = function(point, draw) {
+    if(this.lastPoint === undefined)
+	this.lastPoint = point;
+    else {
+	var segment = new Segment(this.lastPoint, point);
+	this.segments.push(segment);
+	this.lastPoint = point;
+	if(draw === true)
+	    segment.render(this.context);
+    }
 };
 
+Shape.prototype.render = function(context) {
+    for(var i=0; i<this.segments.length; i++)
+	this.segments[i].render(context);
+};
+
+
 var divLog = function(text) {
-  logText = logText + "\n"+text;
-  jQuery("#log").text(logText);
+    logText = logText + "\n"+text;
+    jQuery("#log").text(logText);
 };
 
 // Setup event handlers
 $(document).ready(function() {
-  divLog("Starting...");
-	cb_canvas = document.getElementById("canvas");
-	cb_lastPoints = Array();
+    window.canvas = document.getElementById("canvas");
+    window.scene = new Scene(canvas);
+    window.scene.setMode('edit');
 
-	if (cb_canvas.getContext) {
-		cb_ctx = cb_canvas.getContext('2d');
-		cb_ctx.lineWidth = 2;
-		cb_ctx.strokeStyle = "rgb(0, 0, 0)";
-	
+    // Interface is live now
+    ko.applyBindings(scene);
 
-		cb_canvas.onmousedown = pushDown;
-		cb_canvas.onmouseup = liftOff;
-		cb_canvas.ontouchstart = pushDown;
-		cb_canvas.ontouchstop = liftOff;
-		cb_canvas.ontouchmove = updatePos;
-	}
-  Wami.setup({ id : 'wami' });
-
-
- 
+    //Wami.setup({ id : 'wami' });
 });
 
 function recordPath() {
-  try {
-    // divLog("******RECORDING PATH "+path.length);
-    path.push(cb_lastPoints[cb_lastPoints.length-1]);
-    if (path.length > 1) {
-      var last = path[path.length-1];
-      var secondLast = path[path.length-2];
-      // divLog("About to draw line from ("+secondLast.x+","+secondLast.y+") TO ("+last.x+","+last.y+")");
-      drawLine(secondLast.x,secondLast.y,last.x,last.y);
-    }
-    
-  } catch (x) {
-    divLog("EXCEPTION"+x);
-  }
+    scene.currentShape.addPoint(lastPoint, true);
 }
 
 function pushDown(e) {
-  divLog("****PUSH DOWN!");
-  Wami.startRecording('/sound/capture/testfile');
-	if (e.touches) {
-		// Touch event
-		for (var i = 1; i <= e.touches.length; i++) {
-			cb_lastPoints[i] = getCoords(e.touches[i - 1]); // Get info for finger #1
-		}
-	
-  }
-	else {
-		// Mouse event
-		cb_lastPoints[0] = getCoords(e);
-		cb_canvas.onmousemove = updatePos;
+    //Wami.startRecording('/sound/capture/testfile');
+    if (e.touches) {
+	// Touch event
+	for (var i = 1; i <= e.touches.length; i++) {
+	    point = getCoords(e.touches[i - 1]); // Get info for finger #1
 	}
-  recordPath();
-  timer = setInterval(recordPath,sampleFrequency);
-	return false;
+	
+    }
+    else {
+	// Mouse event
+	lastPoint = getCoords(e);
+	canvas.onmousemove = updatePos;
+    }
+    timer = setInterval(recordPath,sampleFrequency);
+    return false;
 }
 
 // Called whenever cursor position changes after drawing has started
 function liftOff(e) {
-  Wami.stopRecording();
-  divLog("****LIFTING OFF!");
-	e.preventDefault();
-	cb_canvas.onmousemove = null;
-  clearInterval(timer);
+    //Wami.stopRecording();
+    scene.nextShape();
+    e.preventDefault();
+    canvas.onmousemove = null;
+    clearInterval(timer);
 }
 
 function updatePos(e) {
-	if (e.touches) {
-		// Touch Enabled
-		for (var i = 1; i <= e.touches.length; i++) {
-			var p = getCoords(e.touches[e.touches.length - 1]); // Get info for finger i
-			cb_lastPoints[i] = {x: p.x, y: p.y};
-		}
+    if (e.touches) {
+	// Touch Enabled
+	for (var i = 1; i <= e.touches.length; i++) {
+	    var p = getCoords(e.touches[e.touches.length - 1]); // Get info for finger i
+	    lastPoint = {x: p.x, y: p.y};
 	}
-	else {
-		// Not touch enabled
-		var p = getCoords(e);
-		cb_lastPoints[0] = {x: p.x, y: p.y};
-	}
-	return false;
+    }
+    else {
+	// Not touch enabled
+	var p = getCoords(e);
+	lastPoint = {x: p.x, y: p.y};
+    }
+    return false;
 }
 
-// Draw a line on the canvas from (s)tart to (e)nd
-function drawLine(sX, sY, eX, eY) {
-  cb_ctx.beginPath();
-	cb_ctx.moveTo(sX, sY);
-	cb_ctx.lineTo(eX, eY);
-  cb_ctx.stroke();
-	cb_ctx.closePath();
-}
 
 // Get the coordinates for a mouse or touch event
 function getCoords(e) {
-	if (e.offsetX) {
-		return { x: e.offsetX, y: e.offsetY };
-	}
-	else if (e.layerX) {
-		return { x: e.layerX, y: e.layerY };
-	}
-	else {
-		return { x: e.pageX - cb_canvas.offsetLeft, y: e.pageY - cb_canvas.offsetTop };
-	}
+    if (e.offsetX) {
+	return { x: e.offsetX, y: e.offsetY };
+    }
+    else if (e.layerX) {
+	return { x: e.layerX, y: e.layerY };
+    }
+    else {
+	return { x: e.pageX - cb_canvas.offsetLeft, y: e.pageY - cb_canvas.offsetTop };
+    }
 }
