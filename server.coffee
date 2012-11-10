@@ -3,6 +3,7 @@ http = require 'http'
 path = require 'path'
 sys = require 'sys'
 fs = require 'fs'
+uuid = require 'node-uuid'
 
 app = express()
 
@@ -76,5 +77,5 @@ app.post '/sound/capture/:filename', (req,res) ->
     stream.end
 
 app.get '/draw', (req, res) ->
-  res.render 'draw', title: "Draw"
+  res.render 'draw', title: "Draw", uuid: uuid.v1()
 

@@ -16,11 +16,12 @@ var Colors = {
     MARKER: "#0000FF"
 };
 
-var Scene = function(canvas) {
+var Scene = function(id, canvas) {
     // interface properties
     this.mode = ko.observable('edit');
 
     // state
+    this.id = id;
     this.shapes = [];
     this.canvas = canvas;
     this.context = canvas.getContext('2d');
@@ -258,7 +259,7 @@ var divLog = function(text) {
 // Setup event handlers
 $(document).ready(function() {
     window.canvas = document.getElementById("canvas");
-    window.scene = new Scene(canvas);
+    window.scene = new Scene(UUID,canvas);
     window.scene.setMode('edit');
 
     // Interface is live now

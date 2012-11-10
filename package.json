@@ -11,6 +11,7 @@
     "url": "git@github.com:nko3/forward.git"
   },
   "dependencies": {
+    "node-uuid": "1.4.0",
     "express": "3.0.0rc3",
     "jade": "*",
     "coffee-script": "*",

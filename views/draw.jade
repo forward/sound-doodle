@@ -3,6 +3,8 @@ block append scripts
   script(src='javascripts/finger.js')
   script(src='https://ajax.googleapis.com/ajax/libs/swfobject/2.2/swfobject.js')
   script(src='javascripts/recorder.js')
+  script
+    window.UUID = "!{uuid}".replace(/-/g,"");
 block append content
   body
     div(class="row")
