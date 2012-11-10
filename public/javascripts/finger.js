@@ -4,7 +4,7 @@ var logText = "";
 var trails = [];
 
 var timer = null;
-var sampleFrequency = 100;
+var SAMPLING_FREQUENCY = 100;
 
 var DISTANCE_THRESHOLD = 20;
 
@@ -256,17 +256,9 @@ var divLog = function(text) {
     jQuery("#log").text(logText);
 };
 
-// Setup event handlers
-$(document).ready(function() {
-    window.canvas = document.getElementById("canvas");
-    window.scene = new Scene(UUID,canvas);
-    window.scene.setMode('edit');
-
-    // Interface is live now
-    ko.applyBindings(scene);
-
-    //Wami.setup({ id : 'wami' });
-});
+//
+// Handlers for mouse/touch events
+//
 
 function recordPath() {
     scene.currentShape.addPoint(lastPoint, true);
@@ -291,7 +283,7 @@ function pushDown(e) {
 	lastPoint = getCoords(e);
 	canvas.onmousemove = updatePos;
     }
-    timer = setInterval(recordPath,sampleFrequency);
+    timer = setInterval(recordPath,SAMPLING_FREQUENCY);
     return false;
 }
 
@@ -336,7 +328,7 @@ function startTracking(e) {
 	lastPoint = getCoords(e);
 	canvas.onmousemove = updateTracking;
     }
-    timer = setInterval(computeEllapsedTime,sampleFrequency);
+    timer = setInterval(computeEllapsedTime,SAMPLING_FREQUENCY);
     return false;
 }
 
@@ -366,3 +358,19 @@ function getCoords(e) {
 	return { x: e.pageX - cb_canvas.offsetLeft, y: e.pageY - cb_canvas.offsetTop };
     }
 }
+
+
+//
+// Main entry point
+//
+
+jQuery(document).ready(function() {
+    window.canvas = document.getElementById("canvas");
+    window.scene = new Scene(UUID,canvas);
+    window.scene.setMode('edit');
+
+    // Interface is live now
+    ko.applyBindings(scene);
+
+    //Wami.setup({ id : 'wami' });
+});
