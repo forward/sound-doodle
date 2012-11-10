@@ -78,6 +78,3 @@ app.post '/sound/capture/:filename', (req,res) ->
 app.get '/draw', (req, res) ->
   res.render 'draw', title: "Draw"
 
-app.get '/draw2', (req, res) ->
-  res.render 'draw2', title: "Draw"
-

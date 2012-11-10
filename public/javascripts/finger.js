@@ -4,10 +4,21 @@ var cb_lastPoints = null;
 var cb_easing = 0.4;
 var logText = "";
 
-var path = [];
+var trails = [];
 
 var timer = null;
 var sampleFrequency = 100;
+
+
+var Shape = function() {
+  this.points = [];
+};
+
+Shape.prototype.constructor = Shape;
+
+Shape.prototype.addPoint = function(p) {
+  this.points.push(p);
+};
 
 var divLog = function(text) {
   logText = logText + "\n"+text;
@@ -40,12 +51,12 @@ $(document).ready(function() {
 
 function recordPath() {
   try {
-    divLog("******RECORDING PATH "+path.length);
+    // divLog("******RECORDING PATH "+path.length);
     path.push(cb_lastPoints[cb_lastPoints.length-1]);
     if (path.length > 1) {
       var last = path[path.length-1];
       var secondLast = path[path.length-2];
-      divLog("About to draw line from ("+secondLast.x+","+secondLast.y+") TO ("+last.x+","+last.y+")");
+      // divLog("About to draw line from ("+secondLast.x+","+secondLast.y+") TO ("+last.x+","+last.y+")");
       drawLine(secondLast.x,secondLast.y,last.x,last.y);
     }
     
@@ -55,7 +66,8 @@ function recordPath() {
 }
 
 function pushDown(e) {
-  Wami.startRecording('http://localhost:9292/sound/capture/testfile');
+  divLog("****PUSH DOWN!");
+  Wami.startRecording('/sound/capture/testfile');
 	if (e.touches) {
 		// Touch event
 		for (var i = 1; i <= e.touches.length; i++) {
