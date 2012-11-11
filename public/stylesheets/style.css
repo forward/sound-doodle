@@ -29,5 +29,39 @@ canvas {
   box-shadow: 0px 0px 20px #a39b9e;
   -moz-box-shadow: 0px 0px 20px #a39b9e;
   -webkit-box-shadow: 0px 0px 20px #a39b9e;
-  margin-top: 50px; }
+  margin-top: 50px; 
+}
 
+#tools {
+    margin-top: 50px
+}
+
+.note_on {
+    background-color: green
+}
+
+.note_off {
+    background-color: white
+}
+
+#notes {
+    margin-top: 20px;
+    background-color: whiteSmoke;
+    width: 150px;
+    padding-left: 20px;
+    padding-top: 20px;
+    padding-bottom: 20px
+}
+
+#notes table {
+    width: 100px;
+    height: 40px;
+}
+
+#notes td button {
+    max-height: 20px;
+    width: 20px;
+    border-width: 2px;
+    border-style: solid;
+    border-color: black
+}

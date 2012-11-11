@@ -1,9 +1,10 @@
 extends layout
 block append scripts
-  script(src='javascripts/finger.js')
   script(src='javascripts/Audiolet.js')
   script(src='javascripts/audiofile.js')
   script(src='javascripts/audiolet_app.js')
+  script(src='javascripts/serenade.js')
+  script(src='javascripts/finger.js')
   script(src='https://ajax.googleapis.com/ajax/libs/swfobject/2.2/swfobject.js')
   script(src='javascripts/recorder.js')
   script
@@ -15,7 +16,106 @@ block append content
         div(class="btn-group")
           button(class="btn", data-bind='css:{ active:mode()==="edit" }, click:function(){ setMode("edit") }') Draw
           button(class="btn", data-bind='css:{ active:mode()==="play" }, click:function(){ setMode("play") }') Play
-    div(class="row")
-      canvas(width="600",height="600",id="canvas")
+    div(class="row offset3")
+      div(class="span9")
+        canvas(width="600",height="600",id="canvas")
+      div(class="span3", id="tools", data-bind='visible:mode()==="edit"')
+        div(class="btn-group btn-group-vertical row")
+          button(class="btn", data-bind='css:{ active:tool()==="record" }, click:function(){ setTool("record") }')  record
+          button(class="btn", data-bind='css:{ active:tool()==="synth" }, click:function(){ setTool("synth") }')  synth
+         div(id='notes', data-bind='visible:tool()==="synth"')
+           table
+             tr
+               td
+               td 1
+               td 2
+               td 3
+               td 4
+               td 5
+             tr(id="note_c")
+               td C
+               td
+                 button(id="note_c1", data-bind="click:function(){ swapNote('c1'); }, css:{ note_on:note_c1, note_off:note_c1()!==true }") 
+               td
+                 button(id="note_c2", data-bind="click:function(){ swapNote('c2'); }, css:{ note_on:note_c2, note_off:note_c2()!==true }")
+               td
+                 button(id="note_c3", data-bind="click:function(){ swapNote('c3'); }, css:{ note_on:note_c3, note_off:note_c3()!==true }") 
+               td
+                 button(id="note_c4", data-bind="click:function(){ swapNote('c4'); }, css:{ note_on:note_c4, note_off:note_c4()!==true }")
+               td
+                 button(id="note_c5", data-bind="click:function(){ swapNote('c5'); }, css:{ note_on:note_c5, note_off:note_c5()!==true }")
+             tr(id="note_d")
+               td D
+               td
+                 button(id="note_d1", data-bind="click:function(){ swapNote('d1'); }, css:{ note_on:note_d1, note_off:note_d1()!==true }")
+               td
+                 button(id="note_d2", data-bind="click:function(){ swapNote('d2'); }, css:{ note_on:note_d2, note_off:note_d2()!==true }")
+               td
+                 button(id="note_d3", data-bind="click:function(){ swapNote('d3'); }, css:{ note_on:note_d3, note_off:note_d3()!==true }")
+               td
+                 button(id="note_d4", data-bind="click:function(){ swapNote('d4'); }, css:{ note_on:note_d4, note_off:note_d4()!==true }")
+               td
+                 button(id="note_d5", data-bind="click:function(){ swapNote('d5'); }, css:{ note_on:note_d5, note_off:note_d5()!==true }")
+             tr(id="note_e")
+               td E
+               td
+                 button(id="note_e1", data-bind="click:function(){ swapNote('e1'); }, css:{ note_on:note_e1, note_off:note_e1()!==true }")
+               td
+                 button(id="note_e2", data-bind="click:function(){ swapNote('e2'); }, css:{ note_on:note_e2, note_off:note_e2()!==true }")
+               td
+                 button(id="note_e3", data-bind="click:function(){ swapNote('e3'); }, css:{ note_on:note_e3, note_off:note_e3()!==true }")
+               td
+                 button(id="note_e4", data-bind="click:function(){ swapNote('e4'); }, css:{ note_on:note_e4, note_off:note_e4()!==true }")
+               td
+                 button(id="note_e5", data-bind="click:function(){ swapNote('e5'); }, css:{ note_on:note_e5, note_off:note_e5()!==true }")
+             tr(id="note_f")
+               td F
+               td
+                 button(id="note_f1", data-bind="click:function(){ swapNote('f1'); }, css:{ note_on:note_f1, note_off:note_f1()!==true }")
+               td
+                 button(id="note_f2", data-bind="click:function(){ swapNote('f2'); }, css:{ note_on:note_f2, note_off:note_f2()!==true }")
+               td
+                 button(id="note_f3", data-bind="click:function(){ swapNote('f3'); }, css:{ note_on:note_f3, note_off:note_f3()!==true }")
+               td
+                 button(id="note_f4", data-bind="click:function(){ swapNote('f4'); }, css:{ note_on:note_f4, note_off:note_f4()!==true }")
+               td
+                 button(id="note_f5", data-bind="click:function(){ swapNote('f5'); }, css:{ note_on:note_f5, note_off:note_f5()!==true }")
+             tr(id="note_g")
+               td G
+               td
+                 button(id="note_g1", data-bind="click:function(){ swapNote('g1'); }, css:{ note_on:note_g1, note_off:note_g1()!==true }")
+               td
+                 button(id="note_g2", data-bind="click:function(){ swapNote('g2'); }, css:{ note_on:note_g2, note_off:note_g2()!==true }")
+               td
+                 button(id="note_g3", data-bind="click:function(){ swapNote('g3'); }, css:{ note_on:note_g3, note_off:note_g3()!==true }")
+               td
+                 button(id="note_g4", data-bind="click:function(){ swapNote('g4'); }, css:{ note_on:note_g4, note_off:note_g4()!==true }")
+               td
+                 button(id="note_g5", data-bind="click:function(){ swapNote('g5'); }, css:{ note_on:note_g5, note_off:note_g5()!==true }")
+             tr(id="note_a")
+               td A
+               td
+                 button(id="note_a1", data-bind="click:function(){ swapNote('a1'); }, css:{ note_on:note_a1, note_off:note_a1()!==true }")
+               td
+                 button(id="note_a2", data-bind="click:function(){ swapNote('a2'); }, css:{ note_on:note_a2, note_off:note_a2()!==true }")
+               td
+                 button(id="note_a3", data-bind="click:function(){ swapNote('a3'); }, css:{ note_on:note_a3, note_off:note_a3()!==true }")
+               td
+                 button(id="note_a4", data-bind="click:function(){ swapNote('a4'); }, css:{ note_on:note_a4, note_off:note_a4()!==true }")
+               td
+                 button(id="note_a5", data-bind="click:function(){ swapNote('a5'); }, css:{ note_on:note_a5, note_off:note_a5()!==true }")
+             tr(id="note_b")
+               td B
+               td
+                 button(id="note_b1", data-bind="click:function(){ swapNote('b1'); }, css:{ note_on:note_b1, note_off:note_b1()!==true }")
+               td
+                 button(id="note_b2", data-bind="click:function(){ swapNote('b2'); }, css:{ note_on:note_b2, note_off:note_b2()!==true }")
+               td
+                 button(id="note_b3", data-bind="click:function(){ swapNote('b3'); }, css:{ note_on:note_b3, note_off:note_b3()!==true }")
+               td
+                 button(id="note_b4", data-bind="click:function(){ swapNote('b4'); }, css:{ note_on:note_b4, note_off:note_b4()!==true }")
+               td
+                 button(id="note_b5", data-bind="click:function(){ swapNote('b5'); }, css:{ note_on:note_b5, note_off:note_b5()!==true }")
+       
     div(id='log')
     div(id='wami')
