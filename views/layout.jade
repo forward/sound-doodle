@@ -1,10 +1,31 @@
 doctype 5
 html
   head
-    title= title
+    title
+      | Finger Thingy - 
+      = title
     link(rel='stylesheet', href='/stylesheets/bootstrap.min.css')
     link(rel='stylesheet', href='/stylesheets/style.css', media='screen')
     block scripts
       script(src='https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js')
       script(src='http://cdnjs.cloudflare.com/ajax/libs/knockout/2.1.0/knockout-min.js')
-  block content
+  body
+    div(class="row")
+      h1(class='page-title') Finger Thingy
+      h2 Painting sound with your fingers
+      p
+        | Inspired by 
+        a(href="http://singingfingers.blogspot.co.uk/", target="_blank") singing fingers
+        
+        <a href="https://twitter.com/share" class="twitter-share-button" data-related="jasoncosta" data-lang="en" data-size="large" data-count="none">Tweet</a>
+        <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="https://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+    block content
+    footer.footer
+      | Built by
+      a(href='http://twitter.com/thattommyhall') @thattommyhall
+      |,
+      a(href='http://twitter.com/barisbalic') @barisbalic
+      = " and "
+      a(href='http://twitter.com/antoniogarrote') @antoniogarrote
+      = " during the "
+      a(href='http://nodeknockout.com') Node Knockout 2012
