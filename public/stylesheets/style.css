@@ -66,14 +66,14 @@ canvas {
     border-color: black
 }
 
-#wami{
+/*#wami{
    overflow: hidden;
    overflow: hidden;
    position: absolute;
    width: 1px;
    height: 1px
 }
-
+*/
 .screenshot {
    width: 298px;
    border:1px solid #ddd;
