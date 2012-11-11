@@ -80,6 +80,7 @@ window.Scene = function(id, canvas) {
     // interface properties    
     this.mode = ko.observable('edit');
     this.tool = ko.observable('record');
+    this.isDragging = ko.observable(false);
     
     this.stored = ko.observable(false);
     this.playUrl = ko.observable("/play/"+id);
@@ -775,6 +776,7 @@ function pushDown(e) {
 
 // Called whenever cursor position changes after drawing has started
 function liftOff(e) {
+    scene.isDragging(false);
     if(scene.currentShape.constructor === Shape)
 	Wami.stopRecording();
     scene.nextShape();
@@ -784,6 +786,7 @@ function liftOff(e) {
 }
 
 function updatePos(e) {
+    scene.isDragging(true);
     if (e.touches) {
         // Touch Enabled
         for (var i = 1; i <= e.touches.length; i++) {
@@ -823,6 +826,7 @@ function updateTracking(e) {
 }
 
 function stopTracking(e) {
+    scene.isDragging(false);
     console.log("\n\n\nSTOP TRACKING");
     e.preventDefault();
     canvas.onmousemove = null;

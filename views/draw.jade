@@ -28,11 +28,12 @@ block append content
         button(class="btn", data-bind='css:{ active:mode()==="edit" }, click:function(){ setMode("edit") }') Draw
         button(class="btn", data-bind='css:{ active:mode()==="play" }, click:function(){ setMode("play") }') Play
         a(class="btn", href='/draw') Reset
-  div(class="row offset3", style="margin-left:305px; margin-top:20px")
+  div(id="notifications-row", class="row offset1")
     div(class="span8")
       div(class="alert alert-success", data-bind="visible:stored") Scene saved at &nbsp
         a(data-bind="attr:{href:playUrl},text:playUrl")
-  div(class="row")
+      div(class="alert alert-info", data-bind="visible:(mode()==='edit' && tool()==='record') && isDragging()") Record some sound while drawing
+  div(id="canvas-row", class="row")
     div(class="span9")
       canvas(width="700",height="700",id="canvas")
     div(class="span3", id="tools", data-bind='visible:mode()==="edit"')
