@@ -367,7 +367,7 @@ var Segment = function(p1,p2, startTime, timeSpan, counter, shape) {
 Segment.prototype.constructor = Segment;
 
 Segment.fromJSON = function(json, shape) {
-    return new Segment(json.p1, json.p2, json.startTime, json.timeSpan, json.counter, shape);
+    return new Segment(json.p1, json.p2, json.startTime, json.span, json.counter, shape);
 };
 
 Segment.prototype.toJSON = function() {
@@ -602,6 +602,7 @@ Shape.prototype.toJSON = function() {
 Shape.prototype.notifyOutThreshold = function() {};
 
 Shape.prototype.playSound = function() {
+    //console.log("CAN PLAY? "+this.canPlaySound);
     if(this.canPlaySound) {
         var interestingSegment = this.segments[this.markedSegmentCounter]
 
@@ -612,6 +613,7 @@ Shape.prototype.playSound = function() {
         var finalSegment = this.segments[this.segments.length - 1];
         var totalTime = finalSegment.startTime + finalSegment.span;
 
+	//console.log("ABOOUT TO PLAY "+this.filename());
         Sound.play(this.filename(), this.oldProjectedTime, reproductionTime, totalTime);        
         
         this.oldProjectedTime = projectedTime;
