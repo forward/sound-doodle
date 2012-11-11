@@ -1,0 +1,31 @@
+extends layout
+block append scripts
+  script(src='/javascripts/Audiolet.js')
+  script(src='/javascripts/audiofile.js')
+x  script(src='/javascripts/audiolet_app.js')
+  script(src='/javascripts/serenade.js')
+  script(src='/javascripts/finger.js')
+  script(src='https://ajax.googleapis.com/ajax/libs/swfobject/2.2/swfobject.js')
+  script(src='/javascripts/recorder.js')
+  script
+   //
+   // Main entry point
+   //
+    
+   jQuery(document).ready(function() {
+       Sound.init();
+       window.canvas = document.getElementById("canvas");
+       Scene.load("!{id}", canvas, function(scene) {
+             window.scene =  scene;
+             window.scene.setMode('play');
+             ko.applyBindings(scene);
+             Wami.setup({ id : 'wami' });
+       });
+   });
+block append content
+  body
+    div(class="row offset3")
+      div(class="span9")
+        canvas(width="600",height="600",id="canvas")
+    div(id='log')
+    div(id='wami')

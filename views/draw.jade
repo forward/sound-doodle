@@ -9,6 +9,18 @@ block append scripts
   script(src='javascripts/recorder.js')
   script
     window.UUID = "!{uuid}".replace(/-/g,"");
+    //
+    // Main entry point
+    //
+     
+    jQuery(document).ready(function() {
+        Sound.init();
+        window.canvas = document.getElementById("canvas");
+        window.scene = new Scene(UUID,canvas);
+        window.scene.setMode('edit');
+        ko.applyBindings(scene);
+        Wami.setup({ id : 'wami' });
+    });
 block append content
   body
     div(class="row offset3")

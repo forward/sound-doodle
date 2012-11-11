@@ -28,7 +28,7 @@ Colors.random = function() {
 };
 
 
-var Sound = {
+window.Sound = {
     init: function() {
         Sound.audiolet = (new Audiolet());
     },
@@ -76,7 +76,7 @@ var Sound = {
 };
 
 
-var Scene = function(id, canvas) {
+window.Scene = function(id, canvas) {
     // interface properties    
     this.mode = ko.observable('edit');
     this.tool = ko.observable('record');
@@ -138,6 +138,34 @@ var Scene = function(id, canvas) {
     this.reset();    
 };
 Scene.prototype.constructor = Scene;
+
+Scene.load = function(id,canvas, cb) {
+    var path = "/scenes/"+id;
+    var that = this;
+    jQuery.ajax({type:"GET",
+		 url: path}).done(function(json) {
+		     if(typeof(json) === 'string') {
+			 cb(Scene.fromJSON(canvas,JSON.parse(json)));
+		     } else {
+			 cb(Scene.fromJSON(canvas,json));
+		     }
+		 });
+
+};
+
+Scene.fromJSON = function(canvas,json) {
+    var scene = new Scene(json.id,canvas);
+    scene.stored(true);
+    var notes = ['c','d','e','f','g','a','b'];
+    var maxBeats = 6;
+    for(var i=1; i<maxBeats; i++)
+	for(var j=0; j<notes.length; j++)
+	    scene["note_"+notes[j]+i](json["note_"+notes[j]+i]);
+    for(i=0; i<json.shapes.length; i++)
+	scene.shapes.push(Shape.fromJSON(json.shapes[i], scene.context, json.id));
+
+    return scene;
+};
 
 Scene.prototype.toJSON = function() {
     var acum = {};
@@ -287,6 +315,7 @@ Scene.prototype.store = function() {
     var that = this;
     jQuery.ajax({type:"POST",
 		 data: JSON.stringify(this.toJSON()),
+		 contentType:'application/json',
 		 url: path}).done(function() {
 		     that.stored(true);
 		 });
@@ -303,6 +332,10 @@ var Segment = function(p1,p2, startTime, timeSpan, counter, shape) {
     this.shape = shape;
 };
 Segment.prototype.constructor = Segment;
+
+Segment.fromJSON = function(json, shape) {
+    return new Segment(json.p1, json.p2, json.startTime, json.timeSpan, json.counter, shape);
+};
 
 Segment.prototype.toJSON = function() {
     var acum = {};
@@ -482,6 +515,21 @@ var Shape = function(context, id, scene_id) {
 
 Shape.prototype.constructor = Shape;
 
+Shape.fromJSON = function(json, context, id, scene_id) {
+    var shape = null;
+    if(json.type === "shape") {
+	shape = new Shape(context, id, scene_id);	 
+    } else {
+	shape = new SynthShape(context, id, scene_id, json.notes);	 	
+    }
+    shape.clock = json.clock;
+    shape.initialTime = json.initialTime;
+    shape.markedSegmentCounter = json.markedSegmentCounter;
+    for(var i=0; i<json.segments.length; i++)
+	shape.segments.push(Segment.fromJSON(json.segments[i], shape));
+    return shape;
+};
+
 Shape.prototype.toJSON = function() {
     var acum = {};
     acum.sceneId = this.sceneId;
@@ -494,6 +542,7 @@ Shape.prototype.toJSON = function() {
 	return s.toJSON();
     });
 
+    acum.type = "shape";
     return acum;
 };
 
@@ -592,6 +641,7 @@ SynthShape.prototype.constructor = SynthShape;
 
 SynthShape.prototype.toJSON = function() {
     var acum = new Shape().toJSON.call(this);
+    acum.type = "synth_shape";
     acum.notes = this.notes;
     return acum;
 };
@@ -743,20 +793,3 @@ function getCoords(e) {
         return { x: e.pageX - cb_canvas.offsetLeft, y: e.pageY - cb_canvas.offsetTop };
     }
 }
-
-
-//
-// Main entry point
-//
-
-
-
-
-jQuery(document).ready(function() {
-    Sound.init();
-    window.canvas = document.getElementById("canvas");
-    window.scene = new Scene(UUID,canvas);
-    window.scene.setMode('edit');
-    ko.applyBindings(scene);
-    Wami.setup({ id : 'wami' });
-});

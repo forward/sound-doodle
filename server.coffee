@@ -10,6 +10,8 @@ redishost = "nodejitsudb6041171855.redis.irstack.com"
 redishost = "localhost" if(process.env.NODE_ENV == "development")
 
 client = redis.createClient(6379,redishost)
+client.on "ready",() ->
+  client.auth("f327cfe980c971946e80b8e975fbebb4")
 client.on "error", (err) ->
   console.log("REDIS error: "+ err)
 
@@ -75,14 +77,11 @@ app.get '/', (req,res) ->
 
 app.get '/scenes/:id', (req,res) ->
   res.setHeader('Content-Type', 'application/json')
-  console.log("THE BODY READ FROM ->"+req.params.id+"<-")
   client.hget req.params.id, 'json', (err,json)->
-    console.log(json);
     res.send 200, json
 
 app.post '/scenes/:id', (req,res) ->
-  console.log("THE BODY SET FROM "+req.params.id)
-  console.log(JSON.stringify(req.body))
+  console.log(req.body);
   client.hset req.params.id, "json", JSON.stringify(req.body)
   client.hset req.params.id, "timestamp", (new Date()).getTime()
   res.send(201,"ok")
@@ -102,3 +101,5 @@ app.post '/sound/capture/:filename', (req,res) ->
 app.get '/draw', (req, res) ->
   res.render 'draw', title: "Draw", uuid: uuid.v1()
 
+app.get '/play/:id', (req,res) ->
+  res.render 'play', title: ("Scene "+req.params.id), id:req.params.id
