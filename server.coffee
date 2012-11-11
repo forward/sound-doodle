@@ -76,7 +76,7 @@ io.sockets.on 'connection', (socket) ->
     console.log "#{socket.id} left"
 
 app.get '/', (req,res) ->
-  recentScenes = client.zrevrange "scenes", 0, 2, (err,results) ->
+  recentScenes = client.zrevrange "scenes", 0, 8, (err,results) ->
     command = results.map (elem) ->
       ["hget", elem, "screenshot"]
     console.log command
