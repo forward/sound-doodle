@@ -4,6 +4,15 @@ path = require 'path'
 sys = require 'sys'
 fs = require 'fs'
 uuid = require 'node-uuid'
+redis = require 'redis'
+
+redishost = "nodejitsudb6041171855.redis.irstack.com"
+redishost = "localhost" if(process.env.NODE_ENV == "development")
+
+client = redis.createClient(6379,redishost)
+client.on "error", (err) ->
+  console.log("REDIS error: "+ err)
+
 
 app = express()
 
@@ -63,6 +72,20 @@ io.sockets.on 'connection', (socket) ->
 
 app.get '/', (req,res) ->
   res.redirect '/draw'
+
+app.get '/scenes/:id', (req,res) ->
+  res.setHeader('Content-Type', 'application/json')
+  console.log("THE BODY READ FROM ->"+req.params.id+"<-")
+  client.hget req.params.id, 'json', (err,json)->
+    console.log(json);
+    res.send 200, json
+
+app.post '/scenes/:id', (req,res) ->
+  console.log("THE BODY SET FROM "+req.params.id)
+  console.log(JSON.stringify(req.body))
+  client.hset req.params.id, "json", JSON.stringify(req.body)
+  client.hset req.params.id, "timestamp", (new Date()).getTime()
+  res.send(201,"ok")
 
 app.get '/sound', (req,res) ->
   res.render 'sound', title: "Sound"

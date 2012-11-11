@@ -11,11 +11,15 @@ block append scripts
     window.UUID = "!{uuid}".replace(/-/g,"");
 block append content
   body
-    div(class="row")
-      div(class="span4 offset8")
+    div(class="row offset3")
+      div(class="span4")
         div(class="btn-group")
           button(class="btn", data-bind='css:{ active:mode()==="edit" }, click:function(){ setMode("edit") }') Draw
           button(class="btn", data-bind='css:{ active:mode()==="play" }, click:function(){ setMode("play") }') Play
+    div(class="row offset3", style="margin-left:305px; margin-top:20px")
+      div(class="span8")
+        div(class="alert alert-success", data-bind="visible:stored") Scene saved at &nbsp
+          a(data-bind="attr:{href:playUrl},text:playUrl")
     div(class="row offset3")
       div(class="span9")
         canvas(width="600",height="600",id="canvas")
@@ -116,6 +120,10 @@ block append content
                  button(id="note_b4", data-bind="click:function(){ swapNote('b4'); }, css:{ note_on:note_b4, note_off:note_b4()!==true }")
                td
                  button(id="note_b5", data-bind="click:function(){ swapNote('b5'); }, css:{ note_on:note_b5, note_off:note_b5()!==true }")
+    div(class="row")
+      div(class="offset3 span3")
+        div(class="btn-group", style="margin-left: 40px; margin-top:10px")
+          button(class="btn btn-large btn-success", data-bind='click:store') Save
        
     div(id='log')
     div(id='wami')
