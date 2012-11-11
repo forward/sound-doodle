@@ -82,7 +82,7 @@ window.Scene = function(id, canvas) {
     this.tool = ko.observable('record');
     
     this.stored = ko.observable(false);
-    this.playUrl = ko.observable("/play/"+id)
+    this.playUrl = ko.observable("/play/"+id);
 
     this.note_c1 = ko.observable(false);	
     this.note_c2 = ko.observable(true);	
@@ -114,7 +114,7 @@ window.Scene = function(id, canvas) {
     this.note_g4 = ko.observable(false);	
     this.note_g5 = ko.observable(false);	
 
-    this.note_a1 = ko.observable(false);	
+    this.note_a1 = ko.observable(false);
     this.note_a2 = ko.observable(false);	
     this.note_a3 = ko.observable(false);	
     this.note_a4 = ko.observable(false);	
@@ -310,17 +310,49 @@ Scene.prototype.computeCloserSegment = function(point) {
     }
 };
 
+Scene.prototype.getScreenshot = function() {
+  this.forceColor();
+  this.render();
+  var data = this.canvas.toDataURL();
+  this.reset();
+  this.render();
+
+  return data;
+}
+
 Scene.prototype.store = function() {
-    var path = "/scenes/"+this.id;
-    var that = this;
-    jQuery.ajax({type:"POST",
-		 data: JSON.stringify(this.toJSON()),
-		 contentType:'application/json',
-		 url: path}).done(function() {
-		     that.stored(true);
-		 });
+  var path = "/scenes/"+this.id;
+  var that = this;
+  jQuery.ajax({type:"POST",
+		           data: JSON.stringify(this.toJSON()),
+		           contentType:'application/json',
+		           url: path}).done(function() {
+		                              that.stored(true);
+                                  
+		                            });
+
+  var screenPath = path + "/screenshot";
+  var screenData = this.getScreenshot();
+  
+  jQuery.ajax({type:"POST",
+		           data: screenData,
+		           contentType:'image/png',
+		           url: screenPath});
 };
 
+Scene.prototype.forceColor = function() {
+  if(arguments.length === 0) {
+    this.color = Colors.random();
+    for(var i=0; i<this.shapes.length; i++) {
+      this.shapes[i].forceColor();
+    }
+  } else {
+    this.color = arguments[0];
+    for(var i=0; i<this.shapes.length; i++) {
+      this.shapes[i].forceColor();
+    }
+  }
+};
 
 var Segment = function(p1,p2, startTime, timeSpan, counter, shape) {
     this.counter = counter;
@@ -346,6 +378,14 @@ Segment.prototype.toJSON = function() {
     acum.span = this.span;
 
     return acum;
+};
+
+Segment.prototype.forceColor = function() {
+  if(arguments.length === 0) {
+    this.color = Colors.random();
+  } else {
+    this.color = arguments[0];
+  }
 };
 
 Segment.prototype.render = function(context) {    
@@ -500,7 +540,7 @@ Segment.prototype.distance = function(point) {
 };
 
 var Shape = function(context, id, scene_id) {
-    if(arguments.lenght !== 0) {
+    if(arguments.length !== 0) {
 	this.sceneId = scene_id;
 	this.id = id;
 	this.segments = [];
@@ -514,6 +554,18 @@ var Shape = function(context, id, scene_id) {
 };
 
 Shape.prototype.constructor = Shape;
+
+Shape.prototype.forceColor = function() {
+  if(arguments.length === 0) {
+    for(var i=0; i<this.segments.length; i++) {
+      this.segments[i].forceColor();
+    }  
+  } else {
+    for(var i=0; i<this.segments.length; i++) {
+      this.segments[i].forceColor(arguments[0]);
+    }  
+  }
+};
 
 Shape.fromJSON = function(json, context, id, scene_id) {
     var shape = null;
