@@ -150,7 +150,6 @@ Scene.load = function(id,canvas, cb) {
 			 cb(Scene.fromJSON(canvas,json));
 		     }
 		 });
-
 };
 
 Scene.fromJSON = function(canvas,json) {
@@ -189,10 +188,11 @@ Scene.prototype.reset = function() {
 
     this.canvas.width = this.canvas.width;
     var oldFillStyle = this.context.fillStyle;
-    if(this.mode() === "edit") {
-        this.context.fillStyle  = Colors.WHITE;
-        this.context.fillRect(0,0,this.canvas.width, this.canvas.height);
-    }
+
+    this.context.fillStyle  = Colors.WHITE;
+    this.context.fillRect(0,0,this.canvas.width, this.canvas.height);
+
+
     this.context.fillStyle = oldFillStyle;
     
     this.context.lineWidth = 2;

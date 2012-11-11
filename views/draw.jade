@@ -32,9 +32,9 @@ block append content
     div(class="span8")
       div(class="alert alert-success", data-bind="visible:stored") Scene saved at &nbsp
         a(data-bind="attr:{href:playUrl},text:playUrl")
-  div(class="row offset3")
+  div(class="row")
     div(class="span9")
-      canvas(width="600",height="600",id="canvas")
+      canvas(width="700",height="700",id="canvas")
     div(class="span3", id="tools", data-bind='visible:mode()==="edit"')
       div(class="btn-group btn-group-vertical row")
         button(class="btn", data-bind='css:{ active:tool()==="record" }, click:function(){ setTool("record") }')  record
@@ -133,8 +133,8 @@ block append content
              td
                button(id="note_b5", data-bind="click:function(){ swapNote('b5'); }, css:{ note_on:note_b5, note_off:note_b5()!==true }")
   div(class="row")
-    div(class="offset3 span3")
-      div(class="btn-group", style="margin-left: 40px; margin-top:10px")
+    div(class="span3")
+      div(class="btn-group", style="margin-top:10px")
         button(class="btn btn-large btn-success", data-bind='click:store') Save
      
   div(id='log')

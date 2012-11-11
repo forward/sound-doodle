@@ -81,6 +81,10 @@ app.get '/', (req,res) ->
       ["hget", elem, "screenshot"]
     console.log command
     client.multi(command).exec (err,screenshots) ->
+      screenshots = screenshots.map (ss,i) ->
+        image: ss
+        path: "/play/"+results[i]
+
       console.log err if err
       res.render 'index',
         title: "Finger Thingy"

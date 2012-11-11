@@ -7,3 +7,9 @@ block append content
   div(class="row")
     iframe(width="640", height="360", src="http://www.youtube.com/embed/G1tRY1TALgU?feature=player_embedded")
       
+
+  .row#screenshots
+    each screenshot in screenshots
+      div(class="span4")
+        a(href=screenshot.path)
+          img(src=screenshot.image,class="screenshot")
