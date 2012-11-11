@@ -76,7 +76,25 @@ io.sockets.on 'connection', (socket) ->
     console.log "#{socket.id} left"
 
 app.get '/', (req,res) ->
-  res.redirect '/draw'
+  recentScenes = client.zrevrange "scenes", 0, 2, (err,results) ->
+    command = results.map (elem) ->
+      ["hget", elem, "screenshot"]
+    console.log command
+    client.multi(command).exec (err,screenshots) ->
+      console.log err if err
+      res.render 'index',
+        title: "Finger Thingy"
+        screenshots: screenshots
+
+app.post '/scenes/:id/screenshot', (req, res) ->
+  console.log "screenshot!"
+  acum = ""
+  req.on "data",(chunk) ->
+    console.log "chunk"
+    acum = acum + chunk
+  req.on "end",() ->
+    client.hset req.params.id, "screenshot", acum
+    res.send 201, "created"
 
 app.get '/scenes/:id', (req,res) ->
   res.setHeader('Content-Type', 'application/json')
@@ -85,8 +103,9 @@ app.get '/scenes/:id', (req,res) ->
 
 app.post '/scenes/:id', (req,res) ->
   console.log(req.body);
+  req.body["timestamp"] = (new Date()).getTime()
   client.hset req.params.id, "json", JSON.stringify(req.body)
-  client.hset req.params.id, "timestamp", (new Date()).getTime()
+  client.zadd "scenes", req.body.timestamp, req.params.id
   res.send(201,"ok")
 
 app.get '/sound', (req,res) ->
