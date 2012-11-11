@@ -1,0 +1,32 @@
+extends layout
+block append scripts
+  script
+    var ctx = new webkitAudioContext();
+
+    var req = new XMLHttpRequest();
+    req.open('GET', '/8seconds.wav', true);
+    req.responseType = 'arraybuffer';
+
+    source = ctx.createBufferSource();
+    req.onload = function() {
+      ctx.decodeAudioData(req.response, function(buffer) {
+        source.buffer = buffer;
+      });
+    }
+    req.send();
+    
+    source.connect(ctx.destination);
+    source.noteOn(0);
+    
+    
+block append content
+  body
+    div(class="row")
+      div(class="span4 offset8")
+        div(class="btn-group")
+          button(class="btn", data-bind='css:{ active:mode()==="edit" }, click:function(){ setMode("edit") }') Draw
+          button(class="btn", data-bind='css:{ active:mode()==="play" }, click:function(){ setMode("play") }') Play
+    div(class="row")
+      canvas(width="600",height="600",id="canvas")
+    div(id='log')
+    div(id='wami')
