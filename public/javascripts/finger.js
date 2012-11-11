@@ -161,7 +161,7 @@ Scene.fromJSON = function(canvas,json) {
 	for(var j=0; j<notes.length; j++)
 	    scene["note_"+notes[j]+i](json["note_"+notes[j]+i]);
     for(i=0; i<json.shapes.length; i++)
-	scene.shapes.push(Shape.fromJSON(json.shapes[i], scene.context, json.id));
+	scene.shapes.push(Shape.fromJSON(json.shapes[i], scene.context, i, json.id));
 
     return scene;
 };
