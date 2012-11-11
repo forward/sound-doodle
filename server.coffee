@@ -104,7 +104,6 @@ app.post '/sound/capture/:filename', (req,res) ->
 app.get '/draw', (req, res) ->
   res.render 'draw', title: "Draw", uuid: uuid.v1()
 
-
 app.get '/play/:id', (req,res) ->
   res.render 'play', title: ("Scene "+req.params.id), id:req.params.id
 
