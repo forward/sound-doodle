@@ -6,16 +6,6 @@ fs = require 'fs'
 uuid = require 'node-uuid'
 redis = require 'redis'
 
-redishost = "nodejitsudb6041171855.redis.irstack.com"
-redishost = "localhost" if(process.env.NODE_ENV == "development")
-
-client = redis.createClient(6379,redishost)
-client.on "ready",() ->
-  client.auth("f327cfe980c971946e80b8e975fbebb4")
-client.on "error", (err) ->
-  console.log("REDIS error: "+ err)
-
-
 app = express()
 
 app.configure ->
@@ -31,6 +21,15 @@ app.configure ->
 
 app.configure 'development', ->
   app.use express.errorHandler()
+  redishost = "localhost"
+
+app.configure 'production', ->
+  redishost = "nodejitsudb6041171855.redis.irstack.com"
+  client.auth('nodejitsudb6041171855.redis.irstack.com:f327cfe980c971946e80b8e975fbebb4')
+
+client = redis.createClient(6379,redishost)
+client.on "error", (err) ->
+  console.log("REDIS error: "+ err)
 
 server = http.createServer(app).listen app.get('port'), ->
   console.log "Express server listening on port " + app.get('port')
