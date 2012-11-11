@@ -445,7 +445,6 @@ Shape.prototype.markProjection = function(segment, point) {
     if(this.markedSegmentCounter === null || this.markedSegmentCounter === (segment.counter-1) || this.markedSegmentCounter === (segment.counter))
         this.canPlaySound = true;
     this.markedSegmentCounter = segment.counter;
-    
 };
 
 Shape.prototype.computeCloserSegment = function(point) {
@@ -604,7 +603,7 @@ function startTracking(e) {
         lastPoint = getCoords(e);
         canvas.onmousemove = updateTracking;
     }
-    timer = setInterval(computeEllapsedTime,SAMPLING_FREQUENCY);
+    timer = setInterval(computeEllapsedTime,PLAYBACK_FREQUENCY);
     return false;
 }
 
