@@ -84,3 +84,13 @@ canvas {
    margin-top:20px;
    margin-bottom:20px;
 }
+
+#notifications-row {
+   position:absolute;
+   margin-left:140px; 
+   margin-top:20px
+}
+
+#canvas-row {
+   margin-top: 50px;
+}

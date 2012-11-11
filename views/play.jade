@@ -23,7 +23,10 @@ block append scripts
        });
    });
 block append content
-  div(class="row")
+  div(id="notifications-row", class="row offset1")
+    div(class="span8")
+      div(class="alert alert-info", data-bind="visible:(mode()==='play'&& !isDragging())") Drag your mouse over the shapes
+  div(class="row", id="canvas-row", style="margin-left:30px")
     div(class="span9 offset1")
       canvas(width="700",height="700",id="canvas")
   div(id='log')
