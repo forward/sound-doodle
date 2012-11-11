@@ -76,7 +76,7 @@ io.sockets.on 'connection', (socket) ->
     console.log "#{socket.id} left"
 
 app.get '/', (req,res) ->
-  res.redirect '/draw'
+  res.render 'index', title: "Welcome!"
 
 app.get '/scenes/:id', (req,res) ->
   res.setHeader('Content-Type', 'application/json')
