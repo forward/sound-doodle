@@ -5,9 +5,12 @@ var trails = [];
 
 var timer = null;
 
+// turns on debug rendering of segments
+var DEBUG = false;
+
 var SAMPLING_FREQUENCY = 200;
 var PLAYBACK_FREQUENCY = 200;
-var DISTANCE_THRESHOLD = 20;
+var DISTANCE_THRESHOLD = 30;
 
 var Colors = {
     WHITE: "#FFFFFF",
@@ -17,6 +20,12 @@ var Colors = {
     MARKER: "#0000FF"
 };
 
+Colors.random = function() {
+    var r = parseInt((Math.random() * 1000) % 255);
+    var g = parseInt((Math.random() * 1000) % 255);
+    var b = parseInt((Math.random() * 1000) % 255);
+    return 'rgba('+r+', '+g+', '+b+', 0.5)'
+};
 
 
 var Sound = {
@@ -244,27 +253,56 @@ Scene.prototype.computeCloserSegment = function(point) {
         this.trackedShape = shape;
         this.trackedShape.markProjection(segment, point);
         if(distance <= DISTANCE_THRESHOLD) {
-            shape.highlightSegment(segment, Colors.RED);
+	    shape.highlightSegment(segment, Colors.RED);
             if(shape.canPlaySound)
                 shape.playSound();
         } else {
 	    shape.notifyOutThreshold();
-            shape.highlightSegment(segment, Colors.GREEN);
+	    shape.highlightSegment(segment, Colors.GREEN);
 	}
     }
 };
 
-var Segment = function(p1,p2, startTime, timeSpan, counter) {
+var Segment = function(p1,p2, startTime, timeSpan, counter, shape) {
     this.counter = counter;
     this.p1 = p1;
     this.p2 = p2;
     this.projected = null;
     this.startTime = startTime;
     this.span = timeSpan;
+    this.shape = shape;
 };
 Segment.prototype.constructor = Segment;
 
 Segment.prototype.render = function(context) {    
+    if(DEBUG===true)
+	this.debugRender(context);
+    else {
+	context.beginPath();
+	context.strokeStyle = this.color;
+	context.fillStyle = this.color;
+	var drawThreshold = DISTANCE_THRESHOLD - 10;
+	//if(Math.abs(this.p2.x - this.p1.x) > Math.abs(this.p2.y - this.p1.y)) {
+	    context.moveTo(this.p1.x, this.p1.y-drawThreshold);
+	    context.lineTo(this.p1.x, this.p1.y+drawThreshold);
+	    context.lineTo(this.p2.x, this.p2.y+drawThreshold);
+	    context.lineTo(this.p2.x, this.p2.y-drawThreshold);
+	    context.lineTo(this.p1.x, this.p1.y-drawThreshold);
+	//} else{
+	//    context.moveTo(this.p1.x-drawThreshold, this.p1.y);
+	//    context.lineTo(this.p1.x+drawThreshold, this.p1.y);
+	//    context.lineTo(this.p2.x+drawThreshold, this.p2.y);
+	//    context.lineTo(this.p2.x-drawThreshold, this.p2.y);
+	//    context.lineTo(this.p1.x-drawThreshold, this.p1.y);
+	//}
+	context.stroke();
+	context.fill();	
+	context.closePath();
+	
+    }
+};
+
+Segment.prototype.debugRender = function(context) {    
     context.beginPath();
     context.strokeStyle = this.color;
     context.moveTo(this.p1.x, this.p1.y);
@@ -283,7 +321,16 @@ Segment.prototype.render = function(context) {
 };
 
 Segment.prototype.reset = function() {
-    this.color = Colors.BLACK;
+    if(scene.mode() === 'play') {
+	console.log("COLOR " + this.color);
+	console.log("IS SHAPE? "+scene.trackedShape && scene.trackedShape === this.shape);
+	if(scene.trackedShape && scene.trackedShape === this.shape || this.color === Colors.BLACK || this.color == null) {
+	    console.log("RANDOM!");
+	    this.color = Colors.random();
+	}
+    } else {
+	this.color = Colors.BLACK;
+    }
     this.projected = null;
 };
 
@@ -423,7 +470,7 @@ Shape.prototype.addPoint = function(point, draw) {
         this.lastPoint = point;
     } else {
         var nextClock = (new Date()).getTime();
-        var segment = new Segment(this.lastPoint, point, this.clock - this.initialTime, (nextClock-this.clock), this.segments.length);
+        var segment = new Segment(this.lastPoint, point, this.clock - this.initialTime, (nextClock-this.clock), this.segments.length, this);
         this.clock = nextClock;
         this.segments.push(segment);
         this.lastPoint = point;
