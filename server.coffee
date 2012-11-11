@@ -79,3 +79,6 @@ app.post '/sound/capture/:filename', (req,res) ->
 app.get '/draw', (req, res) ->
   res.render 'draw', title: "Draw", uuid: uuid.v1()
 
+app.get '/test', (req, res) ->
+  res.render 'test', title: "Test", uuid: uuid.v1()
+
