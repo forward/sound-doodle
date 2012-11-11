@@ -27,7 +27,7 @@ var Sound = {
     
     var soundBuffer = new AudioletBuffer(1, 0);
     soundBuffer.load(file, false);
-
+    
     var player = new BufferPlayer(Sound.audiolet, soundBuffer, 0.5, 0, 0);
     var restartTrigger = new TriggerControl(Sound.audiolet);
     restartTrigger.connect(player, 0, 1);
@@ -473,26 +473,9 @@ function getCoords(e) {
 
 jQuery(document).ready(function() {
                          Sound.init();
-                       });
-
-                       //                          window.canvas = document.getElementById("canvas");
-                       //                          window.scene = new Scene(UUID,canvas);
-                       //                          window.scene.setMode('edit');
-
-                       //                          // Interface is live now
-                       //                          ko.applyBindings(scene);
-
-                       //                          Wami.setup({ id : 'wami' });
-                       //                          audio = new Audio('http://www.mediacollege.com/audio/tone/files/440Hz_44100Hz_16bit_05sec.wav');
-                       //                          audio.load();
-                       //                          setInterval(function() {
-                       //                                        audio.pause();
-                       //                                        audio.currentTime = 2;
-                       //                                        audio.duration = 1;
-                       //                                        audio.play();
-
-                       //                                      },1000);
-
-                       //                          });         
-
-                       // audio.currentTime = 1;
+                         window.canvas = document.getElementById("canvas");
+                         window.scene = new Scene(UUID,canvas);
+                         window.scene.setMode('edit');
+                         ko.applyBindings(scene);
+                         Wami.setup({ id : 'wami' });
+});
