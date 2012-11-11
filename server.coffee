@@ -19,15 +19,19 @@ app.configure ->
   app.use(app.router)
   app.use(express.static(path.join(__dirname, 'public')))
 
+
+redishost = "nodejitsudb6041171855.redis.irstack.com"
+redishost = "localhost" if process.env.ENV is "development"
+
 app.configure 'development', ->
   app.use express.errorHandler()
-  redishost = "localhost"
 
 app.configure 'production', ->
-  redishost = "nodejitsudb6041171855.redis.irstack.com"
-  client.auth('nodejitsudb6041171855.redis.irstack.com:f327cfe980c971946e80b8e975fbebb4')
+
 
 client = redis.createClient(6379,redishost)
+client.auth('nodejitsudb6041171855.redis.irstack.com:f327cfe980c971946e80b8e975fbebb4') unless process.env.ENV is "development"
+
 client.on "error", (err) ->
   console.log("REDIS error: "+ err)
 
