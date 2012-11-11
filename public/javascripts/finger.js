@@ -282,21 +282,19 @@ Segment.prototype.render = function(context) {
 	context.strokeStyle = this.color;
 	context.fillStyle = this.color;
 	var drawThreshold = DISTANCE_THRESHOLD - 10;
-	//if(Math.abs(this.p2.x - this.p1.x) > Math.abs(this.p2.y - this.p1.y)) {
+	if(this.shape.constructor === SynthShape) {
 	    context.moveTo(this.p1.x, this.p1.y-drawThreshold);
 	    context.lineTo(this.p1.x, this.p1.y+drawThreshold);
 	    context.lineTo(this.p2.x, this.p2.y+drawThreshold);
 	    context.lineTo(this.p2.x, this.p2.y-drawThreshold);
 	    context.lineTo(this.p1.x, this.p1.y-drawThreshold);
-	//} else{
-	//    context.moveTo(this.p1.x-drawThreshold, this.p1.y);
-	//    context.lineTo(this.p1.x+drawThreshold, this.p1.y);
-	//    context.lineTo(this.p2.x+drawThreshold, this.p2.y);
-	//    context.lineTo(this.p2.x-drawThreshold, this.p2.y);
-	//    context.lineTo(this.p1.x-drawThreshold, this.p1.y);
-	//}
+	    context.fill();	
+	} else {
+	    context.moveTo(this.p1.x, this.p1.y);
+	    context.lineTo(this.p2.x, this.p2.y);
+	}
+
 	context.stroke();
-	context.fill();	
 	context.closePath();
 	
     }
@@ -322,11 +320,12 @@ Segment.prototype.debugRender = function(context) {
 
 Segment.prototype.reset = function() {
     if(scene.mode() === 'play') {
-	console.log("COLOR " + this.color);
-	console.log("IS SHAPE? "+scene.trackedShape && scene.trackedShape === this.shape);
 	if(scene.trackedShape && scene.trackedShape === this.shape || this.color === Colors.BLACK || this.color == null) {
-	    console.log("RANDOM!");
-	    this.color = Colors.random();
+	    if(this.shape.constructor === SynthShape || (this.counter === 0)) {
+		this.color = Colors.random();
+	    } else {
+		this.color = this.shape.segments[0].color;
+	    }
 	}
     } else {
 	this.color = Colors.BLACK;
