@@ -23,21 +23,33 @@ var Sound = {
   init: function() {
     Sound.audiolet = (new Audiolet());
   },
-  play: function(file, initialPosition, timeSpan) {
-    
+  play: function(file, startTime, timeSpan, totalTime) {
     var soundBuffer = new AudioletBuffer(1, 0);
+    
     soundBuffer.load(file, false);
+    var bufferLength = soundBuffer.length;
+
+    var startByte = startTime / totalTime * bufferLength;
+    console.log(bufferLength);
+    console.log(startByte);
+    console.log(timeSpan);
+    console.log(totalTime);
+
+    // var endByte = timeSpan / totalTime * bufferLength;
+    
     
     var player = new BufferPlayer(Sound.audiolet, soundBuffer, 0.5, 0, 0);
     var restartTrigger = new TriggerControl(Sound.audiolet);
     restartTrigger.connect(player, 0, 1);
     player.connect(Sound.audiolet.output);
-    player.startPosition.setValue(initialPosition * soundBuffer.length);
-    console.log(initialPosition * soundBuffer.length);
+    player.startPosition.setValue(startByte);
+    // console.log(initialPosition * bufferLength);
+    // console.log(bufferLength);
+
     restartTrigger.trigger.setValue(1);
     setTimeout(function(){
                  console.log("doing shit");
-                 player.startPosition.setValue(soundBuffer.length);
+                 player.startPosition.setValue(bufferLength-100);
                  restartTrigger.trigger.setValue(1);
                },timeSpan);
   }
@@ -281,9 +293,17 @@ Shape.prototype.constructor = Shape;
 Shape.prototype.playSound = function() {
   if(this.canPlaySound) {
     // debugger;
-    var projectedTime = this.segments[this.markedSegmentCounter].projectedTime();
+    var interestingSegment = this.segments[this.markedSegmentCounter]
+
+    var projectedTime = interestingSegment.projectedTime();
     var reproductionTime = (this.oldProjectedTime === null ? (projectedTime - this.segments[this.markedSegmentCounter].startTime) : (projectedTime - this.oldProjectedTime));
     console.log("===> SHOULD REPRODUCE "+reproductionTime+" FROM "+this.oldProjectedTime);
+    
+    var finalSegment = this.segments[this.segments.length - 1];
+    var totalTime = finalSegment.startTime + finalSegment.span;
+
+    Sound.play(this.filename(), interestingSegment.startTime, interestingSegment.span, totalTime);        
+    
     this.oldProjectedTime = projectedTime;
   } else {
     console.log("(!!) Trying to play invalid sound");
@@ -352,7 +372,7 @@ Shape.prototype.uploadName = function() {
 }
 
 Shape.prototype.filename = function() {
-  return '/' + this.sceneId + '-' + this.id;
+  return '/' + this.sceneId + '-' + this.id + '.wav';
 }
 
 var divLog = function(text) {
