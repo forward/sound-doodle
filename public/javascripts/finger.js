@@ -77,9 +77,12 @@ var Sound = {
 
 
 var Scene = function(id, canvas) {
-    // interface properties
+    // interface properties    
     this.mode = ko.observable('edit');
-    this.tool = ko.observable('record')
+    this.tool = ko.observable('record');
+    
+    this.stored = ko.observable(false);
+    this.playUrl = ko.observable("/play/"+id)
 
     this.note_c1 = ko.observable(false);	
     this.note_c2 = ko.observable(true);	
@@ -135,6 +138,22 @@ var Scene = function(id, canvas) {
     this.reset();    
 };
 Scene.prototype.constructor = Scene;
+
+Scene.prototype.toJSON = function() {
+    var acum = {};
+    var notes = ['c','d','e','f','g','a','b'];
+    var maxBeats = 6;
+    for(var i=1; i<maxBeats; i++)
+	for(var j=0; j<notes.length; j++)
+	    acum["note_"+notes[j]+i] = this["note_"+notes[j]+i]();
+    
+    acum.id = this.id;
+    acum.shapes = this.shapes.map(function(shape) {
+	return shape.toJSON();
+    });
+
+    return acum;
+};
 
 Scene.prototype.reset = function() {
     for(var i=0; i<this.shapes.length; i++)
@@ -263,6 +282,17 @@ Scene.prototype.computeCloserSegment = function(point) {
     }
 };
 
+Scene.prototype.store = function() {
+    var path = "/scenes/"+this.id;
+    var that = this;
+    jQuery.ajax({type:"POST",
+		 data: JSON.stringify(this.toJSON()),
+		 url: path}).done(function() {
+		     that.stored(true);
+		 });
+};
+
+
 var Segment = function(p1,p2, startTime, timeSpan, counter, shape) {
     this.counter = counter;
     this.p1 = p1;
@@ -273,6 +303,17 @@ var Segment = function(p1,p2, startTime, timeSpan, counter, shape) {
     this.shape = shape;
 };
 Segment.prototype.constructor = Segment;
+
+Segment.prototype.toJSON = function() {
+    var acum = {};
+    acum.counter = this.counter;
+    acum.p1 = this.p1;
+    acum.p2 = this.p2;
+    acum.startTime = this.startTime;
+    acum.span = this.span;
+
+    return acum;
+};
 
 Segment.prototype.render = function(context) {    
     if(DEBUG===true)
@@ -441,6 +482,21 @@ var Shape = function(context, id, scene_id) {
 
 Shape.prototype.constructor = Shape;
 
+Shape.prototype.toJSON = function() {
+    var acum = {};
+    acum.sceneId = this.sceneId;
+    acum.id = this.id;
+    // context is missing and must be initialised here
+    acum.clock = this.clock;
+    acum.initialTime = this.initialTime;
+    acum.markedSegmentCounter = this.markedSegmentCounter;
+    acum.segments = this.segments.map(function(s) {
+	return s.toJSON();
+    });
+
+    return acum;
+};
+
 Shape.prototype.notifyOutThreshold = function() {};
 
 Shape.prototype.playSound = function() {
@@ -533,6 +589,12 @@ var SynthShape = function(context, id, scene_id, notes) {
 }
 SynthShape.prototype = new Shape();
 SynthShape.prototype.constructor = SynthShape;
+
+SynthShape.prototype.toJSON = function() {
+    var acum = new Shape().toJSON.call(this);
+    acum.notes = this.notes;
+    return acum;
+};
 
 SynthShape.prototype.notifyOutThreshold = function() {
     this.mute();
