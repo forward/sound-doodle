@@ -4,8 +4,9 @@ var logText = "";
 var trails = [];
 
 var timer = null;
-var SAMPLING_FREQUENCY = 100;
 
+var SAMPLING_FREQUENCY = 100;
+var PLAYBACK_FREQUENCY = 300;
 var DISTANCE_THRESHOLD = 20;
 
 var Colors = {
@@ -15,6 +16,33 @@ var Colors = {
   GREEN: "#00FF00",
   MARKER: "#0000FF"
 };
+
+
+
+var Sound = {
+  init: function() {
+    Sound.audiolet = (new Audiolet());
+  },
+  play: function(file, initialPosition, timeSpan) {
+    
+    var soundBuffer = new AudioletBuffer(1, 0);
+    soundBuffer.load(file, false);
+
+    var player = new BufferPlayer(Sound.audiolet, soundBuffer, 0.5, 0, 0);
+    var restartTrigger = new TriggerControl(Sound.audiolet);
+    restartTrigger.connect(player, 0, 1);
+    player.connect(Sound.audiolet.output);
+    player.startPosition.setValue(initialPosition * soundBuffer.length);
+    console.log(initialPosition * soundBuffer.length);
+    restartTrigger.trigger.setValue(1);
+    setTimeout(function(){
+                 console.log("doing shit");
+                 player.startPosition.setValue(soundBuffer.length);
+                 restartTrigger.trigger.setValue(1);
+               },timeSpan);
+  }
+};
+
 
 var Scene = function(id, canvas) {
   // interface properties
@@ -440,13 +468,31 @@ function getCoords(e) {
 // Main entry point
 //
 
+
+
+
 jQuery(document).ready(function() {
-                         window.canvas = document.getElementById("canvas");
-                         window.scene = new Scene(UUID,canvas);
-                         window.scene.setMode('edit');
-
-                         // Interface is live now
-                         ko.applyBindings(scene);
-
-                         Wami.setup({ id : 'wami' });
+                         Sound.init();
                        });
+
+                       //                          window.canvas = document.getElementById("canvas");
+                       //                          window.scene = new Scene(UUID,canvas);
+                       //                          window.scene.setMode('edit');
+
+                       //                          // Interface is live now
+                       //                          ko.applyBindings(scene);
+
+                       //                          Wami.setup({ id : 'wami' });
+                       //                          audio = new Audio('http://www.mediacollege.com/audio/tone/files/440Hz_44100Hz_16bit_05sec.wav');
+                       //                          audio.load();
+                       //                          setInterval(function() {
+                       //                                        audio.pause();
+                       //                                        audio.currentTime = 2;
+                       //                                        audio.duration = 1;
+                       //                                        audio.play();
+
+                       //                                      },1000);
+
+                       //                          });         
+
+                       // audio.currentTime = 1;
