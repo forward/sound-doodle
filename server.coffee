@@ -38,43 +38,6 @@ client.on "error", (err) ->
 server = http.createServer(app).listen app.get('port'), ->
   console.log "Express server listening on port " + app.get('port')
 
-
-io = require('socket.io').listen(server)
-io.set("log level", 1)
-io.enable('browser client minification')
-io.enable('browser client etag')
-io.enable('browser client gzip')
-io.set('log level', 1)
-io.set 'transports',
-[
-#    'websocket'
-   'flashsocket'
-  , 'htmlfile'
-  , 'xhr-polling'
-  , 'jsonp-polling'
-]
-
-io.sockets.on 'connection', (socket) ->
-  console.log "#{socket.id} connected"
-  client_count++
-  socket.emit 'population', population
-  socket.emit 'status', status()
-  socket.emit 'reset'
-  socket.on 'result', (new_population) ->
-    #console.log "got result from #{socket.id}"
-    result_count++
-    #console.log result_count
-    if result_count > client_count
-      population = for i in [0...200]
-        weighted_choice(population)
-      io.sockets.emit 'population', population
-      io.sockets.emit 'status', status()
-      result_count = 0
-    update_population(new_population)
-  socket.on 'disconnect', ->
-    client_count--
-    console.log "#{socket.id} left"
-
 app.get '/', (req,res) ->
   recentScenes = client.zrevrange "scenes", 0, 8, (err,results) ->
     command = results.map (elem) ->
