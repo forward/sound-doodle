@@ -9,5 +9,5 @@ Using
 
 [Node Knockout page](http://nodeknockout.com/teams/forward) (with intro video from Baris)
 
-Hosted at [NodeJitsu](http://forward.nko3.jit.su/)
+[Demo Site](http://forward.nko3.jit.su/) Hosted at NodeJitsu
 
